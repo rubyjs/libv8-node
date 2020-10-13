@@ -1,0 +1,43 @@
+#!/bin/sh
+
+set -e
+set -u
+
+version="${1}"
+
+cd "src/node-${version}"
+
+BASEDIR="${PWD}"
+BUILDTYPE="${BUILDTYPE:-Release}"
+LIBV8_MONOLITH="libv8_monolith.a"
+
+cd "out/${BUILDTYPE}/obj.target"
+
+platform=$(uname)
+
+rm -vf "${LIBV8_MONOLITH}"
+case "${platform}" in
+    "SunOS")
+        /usr/xpg4/bin/find . -path "**/v8*/**/*.o" | xargs ar cqs "${LIBV8_MONOLITH}"
+        /usr/xpg4/bin/find . -path "**/icu*/**/*.o" | xargs ar cqs "${LIBV8_MONOLITH}"
+        ;;
+    "Darwin")
+        #/usr/bin/find . -path "**/v8*/**/*.o" | xargs ar -q "${LIBV8_MONOLITH}"
+        #/usr/bin/find . -path "**/icu*/**/*.o" | xargs ar -q "${LIBV8_MONOLITH}"
+        /usr/bin/find . -path "**/v8*/**/*.o" -or -path "**/icu*/**/*.o" | sort | uniq | xargs ar -q "${LIBV8_MONOLITH}"
+        ;;
+    "Linux")
+        find . -path './deps/v8/gypfiles/*.a' | while read -r lib; do
+          ar -t "${lib}" | xargs ar -q "${LIBV8_MONOLITH}"
+        done
+        find . -path './tools/icu/*.a' | while read -r lib; do
+          ar -t "${lib}" | xargs ar -q "${LIBV8_MONOLITH}"
+        done
+        ;;
+    *)
+      echo "Unsupported platform: ${platform}"
+      exit 1
+      ;;
+esac
+
+mv -vf "${LIBV8_MONOLITH}" "${BASEDIR}/out/${BUILDTYPE}/${LIBV8_MONOLITH}"

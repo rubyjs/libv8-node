@@ -1,0 +1,29 @@
+#!/bin/sh
+
+set -e
+set -u
+
+version="${1}"
+top="${PWD}"
+
+cd "src/node-${version}"
+
+BASEDIR="${PWD}"
+BUILDTYPE="${BUILDTYPE:-Release}"
+
+cd "${BASEDIR}/deps/v8/include"
+
+find . -name '*.h' | while read -r header; do
+    dir="${top}/vendor/v8/include/$(dirname "${header}")"
+    mkdir -p "${dir}"
+    cp "${header}" "${dir}"
+done
+
+cd "${BASEDIR}/out/${BUILDTYPE}"
+
+for lib in libv8_libbase.a libv8_libplatform.a libv8_monolith.a; do
+    dir="${top}/vendor/v8/out.gn/libv8/obj/$(dirname "${lib}")"
+    mkdir -p "${dir}"
+    rm -fv "${dir}/${lib}"
+    strip -S -x -o "${dir}/${lib}" "${lib}"
+done
