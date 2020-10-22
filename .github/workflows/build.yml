@@ -31,7 +31,7 @@ jobs:
               ./inject-libv8 12.18.4
         - name: Build gem
           run: |
-              bundle exec rake build
+              bundle exec rake binary
         - name: Prepare artifacts
           run: |
               mkdir -p ${{ runner.temp }}/workspace
@@ -73,7 +73,7 @@ jobs:
               ./inject-libv8 12.18.4
         - name: Build gem
           run: |
-              bundle exec rake build
+              bundle exec rake binary
         - name: Prepare artifacts
           run: |
               mkdir -p ${{ runner.temp }}/workspace
@@ -117,7 +117,7 @@ jobs:
               ./inject-libv8 12.18.4
         - name: Build gem
           run: |
-              bundle exec rake build
+              bundle exec rake binary
         - name: Prepare artifacts
           run: |
               mkdir -p ${{ runner.temp }}/workspace
