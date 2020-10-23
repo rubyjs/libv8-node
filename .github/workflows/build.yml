@@ -35,12 +35,12 @@ jobs:
         - name: Upload V8
           uses: actions/upload-artifact@v1
           with:
-            name: v8
+            name: v8-x86_64-darwin19
             path: vendor
         - name: Upload gem
           uses: actions/upload-artifact@v1
           with:
-            name: gem
+            name: gem-x86_64-darwin19
             path: pkg
   build-linux-glibc:
     name: Build (Linux glibc)
@@ -72,12 +72,12 @@ jobs:
         - name: Upload V8
           uses: actions/upload-artifact@v1
           with:
-            name: v8
+            name: v8-x86_64-linux-glibc
             path: vendor
         - name: Upload gem
           uses: actions/upload-artifact@v1
           with:
-            name: gem
+            name: gem-x86_64-linux-glibc
             path: pkg
   build-linux-musl:
     name: Build (Linux musl)
@@ -116,10 +116,10 @@ jobs:
         - name: Upload V8
           uses: actions/upload-artifact@v1
           with:
-            name: v8
+            name: v8-x86_64-linux-musl
             path: vendor
         - name: Upload gem
           uses: actions/upload-artifact@v1
           with:
-            name: gem
+            name: gem-x86_64-linux-musl
             path: pkg
