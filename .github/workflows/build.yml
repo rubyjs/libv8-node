@@ -32,21 +32,16 @@ jobs:
         - name: Build gem
           run: |
               bundle exec rake binary
-        - name: Prepare artifacts
-          run: |
-              mkdir -p ${{ runner.temp }}/workspace
-              cp -Rv pkg ${{ runner.temp }}/workspace/
-              cp -Rv vendor ${{ runner.temp }}/workspace/
-        - name: Upload v8
+        - name: Upload V8
           uses: actions/upload-artifact@v1
           with:
             name: v8
-            path: ${{ runner.temp }}/workspace/vendor
+            path: vendor
         - name: Upload gem
           uses: actions/upload-artifact@v1
           with:
             name: gem
-            path: ${{ runner.temp }}/workspace/pkg
+            path: pkg
   build-linux-glibc:
     name: Build (Linux glibc)
     runs-on: ubuntu-20.04
@@ -74,21 +69,16 @@ jobs:
         - name: Build gem
           run: |
               bundle exec rake binary
-        - name: Prepare artifacts
-          run: |
-              mkdir -p ${{ runner.temp }}/workspace
-              cp -Rv pkg ${{ runner.temp }}/workspace/
-              cp -Rv vendor ${{ runner.temp }}/workspace/
-        - name: Upload v8
+        - name: Upload V8
           uses: actions/upload-artifact@v1
           with:
             name: v8
-            path: ${{ runner.temp }}/workspace/vendor
+            path: vendor
         - name: Upload gem
           uses: actions/upload-artifact@v1
           with:
             name: gem
-            path: ${{ runner.temp }}/workspace/pkg
+            path: pkg
   build-linux-musl:
     name: Build (Linux musl)
     runs-on: ubuntu-20.04
@@ -123,13 +113,13 @@ jobs:
               mkdir -p ${{ runner.temp }}/workspace
               cp -Rv pkg ${{ runner.temp }}/workspace/
               cp -Rv vendor ${{ runner.temp }}/workspace/
-        - name: Upload v8
+        - name: Upload V8
           uses: actions/upload-artifact@v1
           with:
             name: v8
-            path: ${{ runner.temp }}/workspace/vendor
+            path: vendor
         - name: Upload gem
           uses: actions/upload-artifact@v1
           with:
             name: gem
-            path: ${{ runner.temp }}/workspace/pkg
+            path: pkg
