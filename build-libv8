@@ -7,15 +7,18 @@ version="${1}"
 
 cd "src/node-${version}"
 
+./configure --openssl-no-asm --without-npm
+make
+
 # taken from
 # ./configure
 # make
 #   make -C out BUILDTYPE=Release V=1
 
-python configure.py --openssl-no-asm --without-npm
-make BUILDTYPE=Release out/Makefile
-make -C out BUILDTYPE=Release V=1 v8
-make -C out BUILDTYPE=Release V=1 v8_libbase
-make -C out BUILDTYPE=Release V=1 v8_libplatform
-make -C out BUILDTYPE=Release V=1 v8_libsampler
+#python configure.py --openssl-no-asm --without-npm
+#make BUILDTYPE=Release out/Makefile
+#make -C out BUILDTYPE=Release V=1 v8
+#make -C out BUILDTYPE=Release V=1 v8_libbase
+#make -C out BUILDTYPE=Release V=1 v8_libplatform
+#make -C out BUILDTYPE=Release V=1 v8_libsampler
 
