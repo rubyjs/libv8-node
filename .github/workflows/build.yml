@@ -3,7 +3,7 @@ on:
     - push
 
 jobs:
-  buildi-macos:
+  build-macos:
     name: Build (macOS)
     runs-on: macos-10.15
     steps:
