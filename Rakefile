@@ -6,7 +6,7 @@ module Helpers
   module_function
 
   def binary_gemspec(platform = Gem::Platform.local)
-    gemspec = eval(File.read('libv8-node.gemspec'))
+    gemspec = eval(File.read('libv8-node.gemspec')) # rubocop:disable Security/Eval
     gemspec.platform = platform
     gemspec
   end

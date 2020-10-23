@@ -18,4 +18,5 @@ Gem::Specification.new do |s|
   s.require_paths = ['lib', 'ext']
 
   s.add_development_dependency 'rake', '~> 12'
+  s.add_development_dependency 'rubocop', '~> 1.0'
 end
