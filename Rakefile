@@ -26,7 +26,7 @@ task :binary => :compile do
 
   # We don't need most things for the binary
   gemspec.files = []
-  gemspec.files += ['lib/libv8-node.rb', 'lib/libv8_node.rb', 'lib/libv8_node/version.rb']
+  gemspec.files += ['lib/libv8-node.rb', 'lib/libv8/node.rb', 'lib/libv8/node/version.rb']
   gemspec.files += ['ext/libv8-node/location.rb', 'ext/libv8-node/paths.rb']
   gemspec.files += ['ext/libv8-node/.location.yml']
 

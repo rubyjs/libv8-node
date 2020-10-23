@@ -1,9 +1,9 @@
 $LOAD_PATH.unshift File.expand_path('../lib', __FILE__)
-require 'libv8_node/version'
+require 'libv8/node/version'
 
 Gem::Specification.new do |s|
   s.name        = 'libv8-node'
-  s.version     = Libv8Node::VERSION
+  s.version     = Libv8::Node::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ['']
   s.email       = ['']

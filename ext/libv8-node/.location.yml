@@ -1,2 +1,2 @@
---- !ruby/object:Libv8Node::Location::Vendor {}
+--- !ruby/object:Libv8::Node::Location::Vendor {}
 

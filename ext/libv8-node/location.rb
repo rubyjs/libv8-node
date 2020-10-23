@@ -2,7 +2,9 @@ require 'yaml'
 require 'pathname'
 require File.expand_path '../paths', __FILE__
 
-module Libv8Node
+module Libv8; end
+
+module Libv8::Node
   class Location
     def install!
       File.open(Pathname(__FILE__).dirname.join('.location.yml'), "w") do |f|
@@ -20,7 +22,7 @@ module Libv8Node
     class Vendor < Location
       def install!
         require File.expand_path '../builder', __FILE__
-        builder = Libv8Node::Builder.new
+        builder = Libv8::Node::Builder.new
         exit_status = builder.build_libv8!
         super if exit_status == 0
         verify_installation!
@@ -28,16 +30,16 @@ module Libv8Node
       end
 
       def configure(context = MkmfContext.new)
-        context.incflags.insert 0, Libv8Node::Paths.include_paths.map{ |p| "-I#{p}" }.join(" ")  + " "
-        context.ldflags.insert 0, Libv8Node::Paths.object_paths.join(" ") + " "
+        context.incflags.insert 0, Libv8::Node::Paths.include_paths.map{ |p| "-I#{p}" }.join(" ")  + " "
+        context.ldflags.insert 0, Libv8::Node::Paths.object_paths.join(" ") + " "
       end
 
       def verify_installation!
-        include_paths = Libv8Node::Paths.include_paths
+        include_paths = Libv8::Node::Paths.include_paths
         unless include_paths.detect { |p| Pathname(p).join('v8.h').exist? }
           fail HeaderNotFound, "Unable to locate 'v8.h' in the libv8 header paths: #{include_paths.inspect}"
         end
-        Libv8Node::Paths.object_paths.each do |p|
+        Libv8::Node::Paths.object_paths.each do |p|
           fail ArchiveNotFound, p unless File.exist? p
         end
       end
@@ -69,7 +71,7 @@ the libv8 rubygem.
 However, your system version of v8 could not be located.
 
 Please make sure your system version of v8 that is compatible
-with #{Libv8Node::VERSION} installed. You may need to use the
+with #{Libv8::Node::VERSION} installed. You may need to use the
 --with-v8-dir option if it is installed in a non-standard location
 EOS
         end

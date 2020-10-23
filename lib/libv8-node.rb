@@ -1,1 +1,1 @@
-require 'libv8_node'
+require 'libv8/node'

@@ -1,7 +1,9 @@
 require 'rbconfig'
 require 'shellwords'
 
-module Libv8Node
+module Libv8; end
+
+module Libv8::Node
   module Paths
     module_function
 
