@@ -16,19 +16,19 @@ jobs:
               bundle exec ruby -e 'puts Libv8Node::NODE_VERSION' | tee node_version
         - name: Download Node.js
           run: |
-              ./download-node 12.18.4
+              ./download-node 14.14.0
         - name: Extract Node.js
           run: |
-              ./extract-node 12.18.4
+              ./extract-node 14.14.0
         - name: Build V8
           run: |
-              ./build-libv8 12.18.4
+              ./build-libv8 14.14.0
         - name: Build Monolith
           run: |
-              ./build-monolith 12.18.4
+              ./build-monolith 14.14.0
         - name: Inject V8
           run: |
-              ./inject-libv8 12.18.4
+              ./inject-libv8 14.14.0
         - name: Build gem
           run: |
               bundle exec rake binary
@@ -53,19 +53,19 @@ jobs:
           run: bundle install
         - name: Download Node.js
           run: |
-              ./download-node 12.18.4
+              ./download-node 14.14.0
         - name: Extract Node.js
           run: |
-              ./extract-node 12.18.4
+              ./extract-node 14.14.0
         - name: Build V8
           run: |
-              ./build-libv8 12.18.4
+              ./build-libv8 14.14.0
         - name: Build Monolith
           run: |
-              ./build-monolith 12.18.4
+              ./build-monolith 14.14.0
         - name: Inject V8
           run: |
-              ./inject-libv8 12.18.4
+              ./inject-libv8 14.14.0
         - name: Build gem
           run: |
               bundle exec rake binary
@@ -92,19 +92,19 @@ jobs:
           run: bundle install
         - name: Download Node.js
           run: |
-              ./download-node 12.18.4
+              ./download-node 14.14.0
         - name: Extract Node.js
           run: |
-              ./extract-node 12.18.4
+              ./extract-node 14.14.0
         - name: Build V8
           run: |
-              ./build-libv8 12.18.4
+              ./build-libv8 14.14.0
         - name: Build Monolith
           run: |
-              ./build-monolith 12.18.4
+              ./build-monolith 14.14.0
         - name: Inject V8
           run: |
-              ./inject-libv8 12.18.4
+              ./inject-libv8 14.14.0
         - name: Build gem
           run: |
               bundle exec rake binary
