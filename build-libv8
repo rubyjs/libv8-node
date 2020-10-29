@@ -10,7 +10,7 @@ NJOBS="${NJOBS:-1}"
 
 cd "src/node-${version}"
 
-python3 configure --openssl-no-asm --without-npm --shared --with-intl=small-icu
+python3 configure --openssl-no-asm --without-npm --shared --with-intl=small-icu --experimental-enable-pointer-compression
 make -j"${NJOBS}"
 
 # taken from
