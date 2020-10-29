@@ -5,10 +5,13 @@ set -u
 
 version="${1}"
 
+NJOBS="${NJOBS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || true)}"
+NJOBS="${NJOBS:-1}"
+
 cd "src/node-${version}"
 
-./configure --openssl-no-asm --without-npm
-make
+python3 configure --openssl-no-asm --without-npm --shared --with-intl=small-icu
+make -j"${NJOBS}"
 
 # taken from
 # ./configure
