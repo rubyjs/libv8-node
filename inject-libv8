@@ -26,6 +26,13 @@ rm -rf "${top}/vendor/v8/out.gn"
 for lib in libv8_monolith.a; do
     dir="${top}/vendor/v8/out.gn/libv8/obj/$(dirname "${lib}")"
     mkdir -p "${dir}"
-    rm -fv "${dir}/${lib}"
-    strip -S -x -o "${dir}/${lib}" "${lib}"
+    rm -f "${dir}/${lib}"
+
+    if type gstrip; then
+        STRIP=gstrip
+    else
+        STRIP=strip
+    fi
+
+    $STRIP -S -x -o "${dir}/${lib}" "${lib}"
 done

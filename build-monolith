@@ -18,9 +18,8 @@ platform=$(uname)
 rm -f "${LIBV8_MONOLITH}"
 case "${platform}" in
     "SunOS")
-        /usr/xpg4/bin/find . -path "./v8*/**/*.o" -or -path "./icu*/**/*.o" | sort | uniq | while read -r obj; do
-            xargs ar cqS "${LIBV8_MONOLITH}" "${obj}"
-        done
+        /usr/xpg4/bin/find . -path "./v8*/**/*.o" -or -path "./icu*/**/*.o" | sort | uniq | \
+            xargs ar cqS "${LIBV8_MONOLITH}"
         ranlib "${LIBV8_MONOLITH}"
         ;;
     "Darwin")
