@@ -30,11 +30,8 @@ case "${platform}" in
         /usr/bin/ranlib "${LIBV8_MONOLITH}"
         ;;
     "Linux")
-        find . -path './tools/v8/gypfiles/*.a' | while read -r lib; do
-          ar -t "${lib}" | xargs ar -cqS "${LIBV8_MONOLITH}"
-        done
-        find . -path './tools/icu/*.a' | while read -r lib; do
-          ar -t "${lib}" | xargs ar -cqS "${LIBV8_MONOLITH}"
+        find . -path "./v8*/**/*.o" -or -path "./icu*/**/*.o" | sort | uniq | while read -r obj; do
+            ar -cqS "${LIBV8_MONOLITH}" "${obj}"
         done
         ranlib "${LIBV8_MONOLITH}"
         ;;
