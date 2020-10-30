@@ -31,9 +31,8 @@ case "${platform}" in
         ;;
     "Linux")
         find . -path "./torque_*/**/*.o" -or -path "./v8*/**/*.o" -or -path "./icu*/**/*.o" | sort | uniq | while read -r obj; do
-            ar -cqS "${LIBV8_MONOLITH}" "${obj}"
+            ar -cq "${LIBV8_MONOLITH}" "${obj}"
         done
-        ranlib "${LIBV8_MONOLITH}"
         ;;
     *)
       echo "Unsupported platform: ${platform}"
