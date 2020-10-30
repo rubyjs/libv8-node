@@ -32,7 +32,7 @@ jobs:
               ./extract-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
         - name: Validate V8 version
           run: |
-              ruby -e 'h = File.read("src/node-14.14.0/deps/v8/include/v8-version.h"); eval h.each_line.with_object([]) { |l, e| l =~ /#define (V8_[A-Z_]+)\s(\d+)/ && e << "#{$1} = #{$2}" }.join(";"); puts "#{V8_MAJOR_VERSION}.#{V8_MINOR_VERSION}.#{V8_BUILD_NUMBER}.#{V8_PATCH_LEVEL}"' | tee libv8_version_h
+              ruby -e 'h = File.read("src/node-${{ steps.set-metadata.outputs.NODE_VERSION }}/deps/v8/include/v8-version.h"); eval h.each_line.with_object([]) { |l, e| l =~ /#define (V8_[A-Z_]+)\s(\d+)/ && e << "#{$1} = #{$2}" }.join(";"); puts "#{V8_MAJOR_VERSION}.#{V8_MINOR_VERSION}.#{V8_BUILD_NUMBER}.#{V8_PATCH_LEVEL}"' | tee libv8_version_h
               diff libv8_version_h libv8_version
         - name: Build V8
           run: |
@@ -86,7 +86,7 @@ jobs:
               ./extract-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
         - name: Validate V8 version
           run: |
-              ruby -e 'h = File.read("src/node-14.14.0/deps/v8/include/v8-version.h"); eval h.each_line.with_object([]) { |l, e| l =~ /#define (V8_[A-Z_]+)\s(\d+)/ && e << "#{$1} = #{$2}" }.join(";"); puts "#{V8_MAJOR_VERSION}.#{V8_MINOR_VERSION}.#{V8_BUILD_NUMBER}.#{V8_PATCH_LEVEL}"' | tee libv8_version_h
+              ruby -e 'h = File.read("src/node-${{ steps.set-metadata.outputs.NODE_VERSION }}/deps/v8/include/v8-version.h"); eval h.each_line.with_object([]) { |l, e| l =~ /#define (V8_[A-Z_]+)\s(\d+)/ && e << "#{$1} = #{$2}" }.join(";"); puts "#{V8_MAJOR_VERSION}.#{V8_MINOR_VERSION}.#{V8_BUILD_NUMBER}.#{V8_PATCH_LEVEL}"' | tee libv8_version_h
               diff libv8_version_h libv8_version
         - name: Build V8
           run: |
@@ -142,7 +142,7 @@ jobs:
               ./extract-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
         - name: Validate V8 version
           run: |
-              ruby -e 'h = File.read("src/node-14.14.0/deps/v8/include/v8-version.h"); eval h.each_line.with_object([]) { |l, e| l =~ /#define (V8_[A-Z_]+)\s(\d+)/ && e << "#{$1} = #{$2}" }.join(";"); puts "#{V8_MAJOR_VERSION}.#{V8_MINOR_VERSION}.#{V8_BUILD_NUMBER}.#{V8_PATCH_LEVEL}"' | tee libv8_version_h
+              ruby -e 'h = File.read("src/node-${{ steps.set-metadata.outputs.NODE_VERSION }}/deps/v8/include/v8-version.h"); eval h.each_line.with_object([]) { |l, e| l =~ /#define (V8_[A-Z_]+)\s(\d+)/ && e << "#{$1} = #{$2}" }.join(";"); puts "#{V8_MAJOR_VERSION}.#{V8_MINOR_VERSION}.#{V8_BUILD_NUMBER}.#{V8_PATCH_LEVEL}"' | tee libv8_version_h
               diff libv8_version_h libv8_version
         - name: Build V8
           run: |
