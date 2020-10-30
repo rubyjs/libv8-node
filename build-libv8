@@ -8,6 +8,8 @@ version="${1}"
 NJOBS="${NJOBS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || true)}"
 NJOBS="${NJOBS:-1}"
 
+echo "parallel job count: ${NJOBS}"
+
 cd "src/node-${version}"
 
 python2 configure --openssl-no-asm --without-npm --shared --with-intl=small-icu
