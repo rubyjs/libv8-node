@@ -59,7 +59,7 @@ jobs:
   build-linux-glibc:
     name: Build (Linux glibc)
     runs-on: ubuntu-20.04
-    container: ruby:2.7
+    container: ruby:2.2
     steps:
         - name: Checkout
           uses: actions/checkout@v2
