@@ -20,6 +20,11 @@ else
     PYTHON="${PYTHON:-python2}"
 fi
 
+if cc --version | grep 4.9 >/dev/null; then
+    export CC="clang"
+    export CXX="clang++"
+fi
+
 "${PYTHON}" configure --openssl-no-asm --without-npm --shared --with-intl=small-icu --experimental-enable-pointer-compression
 make -j"${NJOBS}"
 
