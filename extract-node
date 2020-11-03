@@ -5,4 +5,15 @@ set -u
 
 version="${1}"
 
-tar -C src -xz -f "src/node-${version}.tar.gz"
+platform=$(uname)
+
+case "${platform}" in
+    SunOS)
+        TAR="${TAR:-gtar}"
+        ;;
+    *)
+        TAR="${TAR:-tar}"
+        ;;
+esac
+
+"${TAR}" -C src -xz -f "src/node-${version}.tar.gz"

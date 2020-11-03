@@ -5,14 +5,22 @@ set -u
 
 version="${1}"
 
-NJOBS="${NJOBS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || true)}"
+NJOBS="${NJOBS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || true)}"
 NJOBS="${NJOBS:-1}"
 
 echo "parallel job count: ${NJOBS}"
 
 cd "src/node-${version}"
 
-python3 configure --openssl-no-asm --without-npm --shared --with-intl=small-icu --experimental-enable-pointer-compression
+patch -p1 < ../../py2-icutrim.patch
+
+if which python3 >/dev/null 2>&1; then
+    PYTHON="${PYTHON:-python3}"
+else
+    PYTHON="${PYTHON:-python2}"
+fi
+
+"${PYTHON}" configure --openssl-no-asm --without-npm --shared --with-intl=small-icu --experimental-enable-pointer-compression
 make -j"${NJOBS}"
 
 # taken from
