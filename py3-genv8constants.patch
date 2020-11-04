@@ -1,0 +1,20 @@
+--- a/tools/genv8constants.py	2020-11-04 09:49:14.000000000 +0100
++++ b/tools/genv8constants.py	2020-11-04 09:49:25.000000000 +0100
+@@ -33,9 +33,14 @@
+ 
+   sys.exit()
+ 
+-pattern = re.compile(bytes('([0-9a-fA-F]{8}|[0-9a-fA-F]{16}) <(.*)>:'))
+-v8dbg = re.compile(bytes('^v8dbg.*$'))
+-numpattern = re.compile(bytes('^[0-9a-fA-F]{2} $'))
++if str == bytes:
++  pattern = re.compile(bytes('([0-9a-fA-F]{8}|[0-9a-fA-F]{16}) <(.*)>:'))
++  v8dbg = re.compile(bytes('^v8dbg.*$'))
++  numpattern = re.compile(bytes('^[0-9a-fA-F]{2} $'))
++else:
++  pattern = re.compile(bytes('([0-9a-fA-F]{8}|[0-9a-fA-F]{16}) <(.*)>:', 'utf-8'))
++  v8dbg = re.compile(bytes('^v8dbg.*$', 'utf-8'))
++  numpattern = re.compile(bytes('^[0-9a-fA-F]{2} $', 'utf-8'))
+ octets = 4
+ 
+ outfile.write("""

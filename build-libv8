@@ -5,6 +5,8 @@ set -u
 
 version="${1}"
 
+platform=$(uname)
+
 NJOBS="${NJOBS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || true)}"
 NJOBS="${NJOBS:-1}"
 
@@ -12,31 +14,27 @@ echo "parallel job count: ${NJOBS}"
 
 cd "src/node-${version}"
 
-patch -p1 < ../../py2-icutrim.patch
-
 if which python3 >/dev/null 2>&1; then
     PYTHON="${PYTHON:-python3}"
 else
     PYTHON="${PYTHON:-python2}"
 fi
 
-if cc --version | grep 4.9 >/dev/null; then
-    export CC="clang"
-    export CXX="clang++"
-fi
+case "${platform}" in
+    SunOS)
+        export CC="${CC:-/opt/local/gcc7/bin/gcc}"
+        export CXX="${CXX:-/opt/local/gcc7/bin/g++}"
+        ;;
+    *)
+        if cc --version | grep 4.9 >/dev/null; then
+            export CC="${CC:-clang}"
+            export CXX="${CXX:-clang++}"
+        fi
+        ;;
+esac
 
 "${PYTHON}" configure --openssl-no-asm --without-npm --shared --with-intl=small-icu --experimental-enable-pointer-compression
-make -j"${NJOBS}"
-
-# taken from
-# ./configure
-# make
-#   make -C out BUILDTYPE=Release V=1
-
-#python configure.py --openssl-no-asm --without-npm
-#make BUILDTYPE=Release out/Makefile
-#make -C out BUILDTYPE=Release V=1 v8
-#make -C out BUILDTYPE=Release V=1 v8_libbase
-#make -C out BUILDTYPE=Release V=1 v8_libplatform
-#make -C out BUILDTYPE=Release V=1 v8_libsampler
-
+make BUILDTYPE=Release config.gypi
+make BUILDTYPE=Release out/Makefile
+export PATH="${PWD}/out/tools/bin:${PATH}"
+make -j"${NJOBS}" -C out BUILDTYPE=Release V=0 v8 v8_libbase v8_libplatform v8_libsampler
