@@ -20,6 +20,7 @@ esac
 
 cd "src/node-${version}"
 
+patch -p1 < ../../gyp-libv8_monolith.patch
 patch -p1 < ../../py2-icutrim.patch
 patch -p1 < ../../py2-genv8constants.patch
 

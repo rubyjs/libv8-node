@@ -1,0 +1,44 @@
+--- a/node.gyp	2020-11-04 15:55:48.000000000 +0100
++++ b/node.gyp	2020-11-04 15:55:51.000000000 +0100
+@@ -1467,6 +1467,16 @@
+         }],
+       ],
+     }, # node_mksnapshot
++    {
++      'target_name': 'libv8_monolith',
++      'type': 'none',
++      'includes': [
++        'node.gypi'
++      ],
++      #'dependencies': [
++      #  'tools/v8_gypfiles/v8.gyp:v8_monolith',
++      #],
++    },
+   ], # end targets
+ 
+   'conditions': [
+--- a/tools/v8_gypfiles/v8.gyp	2020-11-04 16:34:06.000000000 +0100
++++ b/tools/v8_gypfiles/v8.gyp	2020-11-04 16:34:10.000000000 +0100
+@@ -1726,5 +1726,21 @@
+         '<(V8_ROOT)/third_party/zlib/google/compression_utils_portable.h',
+       ],
+     },  # v8_zlib
++    {
++      'target_name': 'v8_monolith',
++      'type': 'static_library',
++      'sources': [
++        '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8.*?sources = ")',
++        '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_libbase.*?sources = ")',
++        '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_libplatform.*?sources = ")',
++        '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_libsampler.*?sources = ")',
++      ],
++      'dependencies': [
++        'v8',
++        'v8_libbase',
++        'v8_libplatform',
++        'v8_libsampler',
++      ],
++    }
+   ],
+ }
+

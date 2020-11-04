@@ -36,5 +36,6 @@ esac
 "${PYTHON}" configure --openssl-no-asm --without-npm --shared --with-intl=small-icu --experimental-enable-pointer-compression
 make BUILDTYPE=Release config.gypi
 make BUILDTYPE=Release out/Makefile
+
 export PATH="${PWD}/out/tools/bin:${PATH}"
-make -j"${NJOBS}" -C out BUILDTYPE=Release V=0 v8 v8_libbase v8_libplatform v8_libsampler
+make -j"${NJOBS}" -C out BUILDTYPE=Release V=0 libv8_monolith
