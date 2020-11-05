@@ -116,7 +116,7 @@ jobs:
     container: ruby:2.3-alpine
     steps:
         - name: Install system dependencies
-          run: apk add --no-cache build-base bash python2 python3 git curl tar clang binutils-gold
+          run: apk add --no-cache build-base linux-headers bash python2 python3 git curl tar clang binutils-gold
         - name: Checkout
           uses: actions/checkout@v2
         - name: Bundle
