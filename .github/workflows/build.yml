@@ -126,7 +126,7 @@ jobs:
           run: |
               bundle exec ruby -e 'puts RUBY_PLATFORM' | tee ruby_platform
               echo "::set-output name=RUBY_PLATFORM::$(cat ruby_platform)"
-              bundle exec ruby -e 'puts Gem.platforms.last.to_s' | tee gem_platform
+              bundle exec ruby -e 'puts Gem::Platform.local.tap { |p| RUBY_PLATFORM =~ /musl/ && p.version.nil? and p.instance_eval { @version = "musl" } }' | tee gem_platform
               echo "::set-output name=GEM_PLATFORM::$(cat gem_platform)"
               bundle exec ruby -e 'puts Libv8::Node::VERSION' | tee gem_version
               echo "::set-output name=GEM_VERSION::$(cat gem_version)"

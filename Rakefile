@@ -5,7 +5,9 @@ Bundler::GemHelper.install_tasks
 module Helpers
   module_function
 
-  def binary_gemspec(platform = Gem::Platform.local)
+  def binary_gemspec(platform = Gem::Platform.local, str = RUBY_PLATFORM)
+    platform.instance_eval { @version = 'musl' } if str =~ /-musl/ && platform.version.nil?
+
     gemspec = eval(File.read('libv8-node.gemspec'))
     gemspec.platform = platform
     gemspec
