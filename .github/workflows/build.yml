@@ -45,7 +45,7 @@ jobs:
               ./inject-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
         - name: Build gem
           run: |
-              bundle exec rake binary
+              bundle exec rake binary:all
         - name: Upload V8
           uses: actions/upload-artifact@v1
           with:

@@ -5,7 +5,7 @@ Bundler::GemHelper.install_tasks
 module Helpers
   module_function
 
-  def binary_gemspec(platform = Gem::Platform.local, str = RUBY_PLATFORM)
+  def binary_gemspec(platform: Gem::Platform.local, str: RUBY_PLATFORM)
     platform.instance_eval { @version = 'musl' } if str =~ /-musl/ && platform.version.nil?
 
     gemspec = eval(File.read('libv8-node.gemspec'))
@@ -22,8 +22,8 @@ task :compile do
   #sh 'ruby ext/libv8-node/extconf.rb'
 end
 
-task :binary => :compile do
-  gemspec = Helpers.binary_gemspec
+task :binary, [:platform] => [:compile] do |_, args|
+  gemspec = Helpers.binary_gemspec(**args.to_h)
   gemspec.extensions.clear
 
   # We don't need most things for the binary
@@ -47,4 +47,27 @@ task :binary => :compile do
             end
 
   FileUtils.mv(package, 'pkg')
+end
+
+namespace :binary do
+  task :all => :binary do
+    return unless RUBY_PLATFORM =~ /darwin-?(\d+)/
+
+    Helpers.binary_gemspec # loads NODE_VERSION
+
+    current = Integer($1)
+    major, minor = File.read(Dir["src/node-#{Libv8::Node::NODE_VERSION}/common.gypi"].last).lines.find { |l| l =~ /-mmacosx-version-min=(\d+).(\d+)/ } && [Integer($1), Integer($2)]
+    first = minor + 4
+    max = 20
+
+    (first..max).each do |version|
+      next if version == current
+
+      platform = Gem::Platform.local.dup
+      platform.instance_eval { @version = version }
+      puts "> building #{platform}"
+
+      Rake::Task["binary"].execute(Rake::TaskArguments.new([:platform], [platform]))
+    end
+  end
 end
