@@ -20,9 +20,9 @@ esac
 
 cd "src/node-${version}"
 
-patch -p1 < ../../gyp-libv8_monolith.patch
-patch -p1 < ../../py2-icutrim.patch
-patch -p1 < ../../py2-genv8constants.patch
+patch -p1 < ../../patch/gyp-libv8_monolith.patch
+patch -p1 < ../../patch/py2-icutrim.patch
+patch -p1 < ../../patch/py2-genv8constants.patch
 
 # TODO: the following still fails on py3 so the above one forcing py2 is needed
 # patch -p1 < ../../py3-genv8constants.patch
