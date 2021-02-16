@@ -1,0 +1,16 @@
+AllCops:
+  TargetRubyVersion: 2.0
+  Exclude:
+    - src/**
+
+Style/Documentation:
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/NumericPredicate:
+  Enabled: false
+
+Metrics/LineLength:
+  Enabled: false

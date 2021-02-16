@@ -4,6 +4,9 @@ set -e
 set -u
 
 version="${1}"
+libexec="$(cd "$(dirname "$0")"; pwd)"
+top="${libexec}/.."
+src="${2:-"${top}/src"}"
 
 platform=$(uname)
 
@@ -16,6 +19,6 @@ case "${platform}" in
         ;;
 esac
 
-mkdir -p src
+mkdir -p "${src}"
 
-curl ${CURLOPTS} -L -o "src/node-${version}.tar.gz" "https://github.com/nodejs/node/archive/v${version}.tar.gz"
+curl ${CURLOPTS} -L -o "${src}/node-${version}.tar.gz" "https://github.com/nodejs/node/archive/v${version}.tar.gz"

@@ -3,8 +3,48 @@ on:
     - push
 
 jobs:
+  build-ruby:
+    name: Build (ruby)
+    runs-on: ubuntu-20.04
+    container: ruby:2.3
+    steps:
+        - name: Checkout
+          uses: actions/checkout@v2
+        - name: Bundle
+          run: bundle install
+        - name: Set metadata
+          id: set-metadata
+          run: |
+              bundle exec ruby -e 'puts RUBY_PLATFORM' | tee ruby_platform
+              echo "::set-output name=RUBY_PLATFORM::$(cat ruby_platform)"
+              bundle exec ruby -e 'puts Gem.platforms.last.to_s' | tee gem_platform
+              echo "::set-output name=GEM_PLATFORM::$(cat gem_platform)"
+              bundle exec ruby -e 'puts Libv8::Node::VERSION' | tee gem_version
+              echo "::set-output name=GEM_VERSION::$(cat gem_version)"
+              bundle exec ruby -e 'puts Libv8::Node::NODE_VERSION' | tee node_version
+              echo "::set-output name=NODE_VERSION::$(cat node_version)"
+              bundle exec ruby -e 'puts Libv8::Node::LIBV8_VERSION' | tee libv8_version
+              echo "::set-output name=LIBV8_VERSION::$(cat libv8_version)"
+        - name: Download Node.js
+          run: |
+              ./libexec/download-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
+        - name: Extract Node.js
+          run: |
+              ./libexec/extract-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
+        - name: Validate V8 version
+          run: |
+              ruby -e 'h = File.read("src/node-${{ steps.set-metadata.outputs.NODE_VERSION }}/deps/v8/include/v8-version.h"); eval h.each_line.with_object([]) { |l, e| l =~ /#define (V8_[A-Z_]+)\s(\d+)/ && e << "#{$1} = #{$2}" }.join(";"); puts "#{V8_MAJOR_VERSION}.#{V8_MINOR_VERSION}.#{V8_BUILD_NUMBER}.#{V8_PATCH_LEVEL}"' | tee libv8_version_h
+              diff libv8_version_h libv8_version
+        - name: Build gem
+          run: |
+              bundle exec rake build
+        - name: Upload gem
+          uses: actions/upload-artifact@v1
+          with:
+            name: gem-${{ steps.set-metadata.outputs.GEM_VERSION  }}-ruby
+            path: pkg
   build-macos:
-    name: Build (macOS)
+    name: Build (x86_64-darwin)
     runs-on: macos-10.15
     steps:
         - name: Checkout
@@ -43,7 +83,7 @@ jobs:
         - name: Inject V8
           run: |
               ./libexec/inject-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
-        - name: Build gem
+        - name: Build binary gems
           run: |
               bundle exec rake binary:all
         - name: Upload V8
@@ -57,7 +97,7 @@ jobs:
             name: gem-${{ steps.set-metadata.outputs.GEM_VERSION  }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
             path: pkg
   build-linux-glibc:
-    name: Build (Linux glibc)
+    name: Build (x86_64-linux-gnu)
     runs-on: ubuntu-20.04
     container: ruby:2.3
     steps:
@@ -97,7 +137,7 @@ jobs:
         - name: Inject V8
           run: |
               ./libexec/inject-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
-        - name: Build gem
+        - name: Build binary gem
           run: |
               bundle exec rake binary
         - name: Upload V8
@@ -111,7 +151,7 @@ jobs:
             name: gem-${{ steps.set-metadata.outputs.GEM_VERSION  }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
             path: pkg
   build-linux-musl:
-    name: Build (Linux musl)
+    name: Build (x86_64-linux-musl)
     runs-on: ubuntu-20.04
     container: ruby:2.3-alpine
     steps:
@@ -153,7 +193,7 @@ jobs:
         - name: Inject V8
           run: |
               ./libexec/inject-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
-        - name: Build gem
+        - name: Build binary gem
           run: |
               bundle exec rake binary
         - name: Prepare artifacts

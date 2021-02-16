@@ -1,4 +1,4 @@
-Vagrant.configure("2") do |config|
+Vagrant.configure('2') do |config|
   config.vm.box                = 'secretescapes/smartos-base64'
   config.vm.box_version        = '1.0.0'
   config.vm.synced_folder      './vagrant', '/usbkey/user_home/vagrant/vagrant',
@@ -19,5 +19,3 @@ Vagrant.configure("2") do |config|
     v.customize ['modifyvm', :id, '--cpus', 2]
   end
 end
-
-

@@ -8,7 +8,7 @@ module Helpers
   def binary_gemspec(platform: Gem::Platform.local, str: RUBY_PLATFORM)
     platform.instance_eval { @version = 'musl' } if str =~ /-musl/ && platform.version.nil?
 
-    gemspec = eval(File.read('libv8-node.gemspec'))
+    gemspec = eval(File.read('libv8-node.gemspec')) # rubocop:disable Security/Eval
     gemspec.platform = platform
     gemspec
   end
@@ -19,7 +19,7 @@ module Helpers
 end
 
 task :compile do
-  #sh 'ruby ext/libv8-node/extconf.rb'
+  sh 'ruby ext/libv8-node/extconf.rb'
 end
 
 task :binary, [:platform] => [:compile] do |_, args|
@@ -50,15 +50,17 @@ task :binary, [:platform] => [:compile] do |_, args|
 end
 
 namespace :binary do
-  task :all => :binary do
+  task all: :binary do
     return unless RUBY_PLATFORM =~ /darwin-?(\d+)/
 
-    Helpers.binary_gemspec # loads NODE_VERSION
-
     current = Integer($1)
+
+    Helpers.binary_gemspec # loads NODE_VERSION
     major, minor = File.read(Dir["src/node-#{Libv8::Node::NODE_VERSION}/common.gypi"].last).lines.find { |l| l =~ /-mmacosx-version-min=(\d+).(\d+)/ } && [Integer($1), Integer($2)]
-    first = minor + 4
-    max = 20
+
+    first = minor + 4 # macos 10.X => darwinY offset
+    first = 20 if RUBY_PLATFORM =~ /^arm46/
+    max = 20 # current known max
 
     (first..max).each do |version|
       next if version == current
@@ -67,7 +69,7 @@ namespace :binary do
       platform.instance_eval { @version = version }
       puts "> building #{platform}"
 
-      Rake::Task["binary"].execute(Rake::TaskArguments.new([:platform], [platform]))
+      Rake::Task['binary'].execute(Rake::TaskArguments.new([:platform], [platform]))
     end
   end
 end

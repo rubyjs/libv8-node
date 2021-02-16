@@ -4,6 +4,9 @@ set -e
 set -u
 
 version="${1}"
+libexec="$(cd "$(dirname "$0")"; pwd)"
+top="${libexec}/.."
+src="${2:-"${top}/src"}"
 
 platform=$(uname)
 
@@ -16,13 +19,13 @@ case "${platform}" in
         ;;
 esac
 
-"${TAR}" -C src -xz -f "src/node-${version}.tar.gz"
+"${TAR}" -C "${src}" -xz -f "${src}/node-${version}.tar.gz"
 
-cd "src/node-${version}"
+cd "${src}/node-${version}"
 
-patch -p1 < ../../patch/gyp-libv8_monolith.patch
-patch -p1 < ../../patch/py2-icutrim.patch
-patch -p1 < ../../patch/py2-genv8constants.patch
+patch -p1 < "${top}"/patch/gyp-libv8_monolith.patch
+patch -p1 < "${top}"/patch/py2-icutrim.patch
+patch -p1 < "${top}"/patch/py2-genv8constants.patch
 
 # TODO: the following still fails on py3 so the above one forcing py2 is needed
 # patch -p1 < ../../py3-genv8constants.patch

@@ -4,9 +4,11 @@ set -e
 set -u
 
 version="${1}"
-top="${PWD}"
+libexec="$(cd "$(dirname "$0")"; pwd)"
+top="${libexec}/.."
+src="${2:-"${top}/src"}"
 
-cd "src/node-${version}"
+cd "${src}/node-${version}"
 
 BASEDIR="${PWD}"
 BUILDTYPE="${BUILDTYPE:-Release}"
@@ -41,3 +43,5 @@ for lib in libv8_monolith.a; do
 
     "${STRIP}" -S -x -o "${dir}/${lib}" "${lib}"
 done
+
+echo '--- !ruby/object:Libv8::Node::Location::Vendor {}' > "${top}/ext/libv8-node/.location.yml"

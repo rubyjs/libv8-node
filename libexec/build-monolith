@@ -4,8 +4,11 @@ set -e
 set -u
 
 version="${1}"
+libexec="$(cd "$(dirname "$0")"; pwd)"
+top="${libexec}/.."
+src="${2:-"${top}/src"}"
 
-cd "src/node-${version}"
+cd "${src}/node-${version}"
 
 BASEDIR="${PWD}"
 BUILDTYPE="${BUILDTYPE:-Release}"
