@@ -58,9 +58,14 @@ namespace :binary do
     Helpers.binary_gemspec # loads NODE_VERSION
     major, minor = File.read(Dir["src/node-#{Libv8::Node::NODE_VERSION}/common.gypi"].last).lines.find { |l| l =~ /-mmacosx-version-min=(\d+).(\d+)/ } && [Integer($1), Integer($2)]
 
-    first = minor + 4 # macos 10.X => darwinY offset
-    first = 20 if RUBY_PLATFORM =~ /^arm46/
-    max = 20 # current known max
+    first = if RUBY_PLATFORM =~ /\barm64e?-/
+              20 # arm64 darwin is only available since darwin20
+            elsif major == '10'
+              minor + 4 # macos 10.X => darwinY offset, 10.15 is darwin19
+            else
+              minor + 20 # maxos 11.X => darwinY offset, 11.0 is darwin20
+            end
+    max = 20 # current known max to build for
 
     (first..max).each do |version|
       next if version == current

@@ -36,6 +36,7 @@ done
 cd "${BASEDIR}/out/${BUILDTYPE}"
 
 rm -rf "${top}/vendor/v8/out.gn"
+# shellcheck disable=SC2043
 for lib in libv8_monolith.a; do
     dir="${top}/vendor/v8/out.gn/libv8/obj/$(dirname "${lib}")"
     mkdir -p "${dir}"

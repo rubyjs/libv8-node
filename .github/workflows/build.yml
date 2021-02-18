@@ -3,6 +3,28 @@ on:
     - push
 
 jobs:
+  rubocop:
+    name: Lint (Rubocop)
+    runs-on: ubuntu-20.04
+    container: ruby:2.3
+    steps:
+     - name: Checkout
+       uses: actions/checkout@v2
+     - name: Bundle
+       run: bundle install
+     - name: Rubocop
+       run: bundle exec rubocop -f simple
+  shellcheck:
+    name: Lint (Shellcheck)
+    runs-on: ubuntu-20.04
+    container: debian:10
+    steps:
+     - name: Checkout
+       uses: actions/checkout@v2
+     - name: Install shellcheck
+       run: apt-get update && apt-get install -y shellcheck
+     - name: Shellcheck
+       run: shellcheck libexec/*
   build-ruby:
     name: Build (ruby)
     runs-on: ubuntu-20.04

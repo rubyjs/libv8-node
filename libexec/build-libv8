@@ -17,7 +17,7 @@ echo "parallel job count: ${NJOBS}"
 
 cd "${src}/node-${version}"
 
-if which python3 >/dev/null 2>&1; then
+if command -v python3 >/dev/null 2>&1; then
     PYTHON="${PYTHON:-python3}"
 else
     PYTHON="${PYTHON:-python2}"

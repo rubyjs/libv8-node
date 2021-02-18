@@ -41,7 +41,10 @@ module Libv8::Node
     end
 
     def script(name)
-      File.expand_path("../../libexec/#{name}", __dir__).tap { |v| p Dir.pwd; p v }
+      File.expand_path("../../libexec/#{name}", __dir__).tap do |v|
+        puts "==== in #{Dir.pwd}"
+        puts "==== running #{v}"
+      end
     end
   end
 end
