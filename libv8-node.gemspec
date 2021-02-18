@@ -12,7 +12,11 @@ Gem::Specification.new do |s|
   s.description = "Node.JS's V8 JavaScript engine for multiplatform goodness"
   s.license     = 'MIT'
 
-  s.files = `git ls-files`.split("\n")
+  s.files = Dir['ext/**/*.rb'] +
+            Dir['lib/**/*.rb'] +
+            Dir['libexec/*'] +
+            Dir['patch/*'] +
+            ['LICENSE', 'README.md', 'CHANGELOG.md']
 
   s.extensions = ['ext/libv8-node/extconf.rb']
   s.require_paths = ['lib', 'ext']
