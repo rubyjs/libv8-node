@@ -1,6 +1,6 @@
 name: Build
 on:
-    - push
+  - push
 
 jobs:
   rubocop:
@@ -30,206 +30,186 @@ jobs:
     runs-on: ubuntu-20.04
     container: ruby:2.3
     steps:
-        - name: Checkout
-          uses: actions/checkout@v2
-        - name: Bundle
-          run: bundle install
-        - name: Set metadata
-          id: set-metadata
-          run: |
-              bundle exec ruby -e 'puts RUBY_PLATFORM' | tee ruby_platform
-              echo "::set-output name=RUBY_PLATFORM::$(cat ruby_platform)"
-              bundle exec ruby -e 'puts Gem.platforms.last.to_s' | tee gem_platform
-              echo "::set-output name=GEM_PLATFORM::$(cat gem_platform)"
-              bundle exec ruby -e 'puts Libv8::Node::VERSION' | tee gem_version
-              echo "::set-output name=GEM_VERSION::$(cat gem_version)"
-              bundle exec ruby -e 'puts Libv8::Node::NODE_VERSION' | tee node_version
-              echo "::set-output name=NODE_VERSION::$(cat node_version)"
-              bundle exec ruby -e 'puts Libv8::Node::LIBV8_VERSION' | tee libv8_version
-              echo "::set-output name=LIBV8_VERSION::$(cat libv8_version)"
-        - name: Download Node.js
-          run: |
-              ./libexec/download-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
-        - name: Extract Node.js
-          run: |
-              ./libexec/extract-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
-        - name: Validate V8 version
-          run: |
-              ruby -e 'h = File.read("src/node-${{ steps.set-metadata.outputs.NODE_VERSION }}/deps/v8/include/v8-version.h"); eval h.each_line.with_object([]) { |l, e| l =~ /#define (V8_[A-Z_]+)\s(\d+)/ && e << "#{$1} = #{$2}" }.join(";"); puts "#{V8_MAJOR_VERSION}.#{V8_MINOR_VERSION}.#{V8_BUILD_NUMBER}.#{V8_PATCH_LEVEL}"' | tee libv8_version_h
-              diff libv8_version_h libv8_version
-        - name: Build gem
-          run: |
-              bundle exec rake build
-        - name: Upload gem
-          uses: actions/upload-artifact@v1
-          with:
-            name: gem-${{ steps.set-metadata.outputs.GEM_VERSION  }}-ruby
-            path: pkg
-  build-macos:
-    name: Build (x86_64-darwin)
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Bundle
+        run: bundle install
+      - name: Set metadata
+        id: set-metadata
+        run: |
+            bundle exec ruby -e 'puts RUBY_PLATFORM' | tee ruby_platform
+            echo "::set-output name=RUBY_PLATFORM::$(cat ruby_platform)"
+            bundle exec ruby -e 'puts Gem.platforms.last.to_s' | tee gem_platform
+            echo "::set-output name=GEM_PLATFORM::$(cat gem_platform)"
+            bundle exec ruby -e 'puts Libv8::Node::VERSION' | tee gem_version
+            echo "::set-output name=GEM_VERSION::$(cat gem_version)"
+            bundle exec ruby -e 'puts Libv8::Node::NODE_VERSION' | tee node_version
+            echo "::set-output name=NODE_VERSION::$(cat node_version)"
+            bundle exec ruby -e 'puts Libv8::Node::LIBV8_VERSION' | tee libv8_version
+            echo "::set-output name=LIBV8_VERSION::$(cat libv8_version)"
+      - name: Download Node.js
+        run: |
+            ./libexec/download-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
+      - name: Extract Node.js
+        run: |
+            ./libexec/extract-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
+      - name: Validate V8 version
+        run: |
+            ruby -e 'h = File.read("src/node-${{ steps.set-metadata.outputs.NODE_VERSION }}/deps/v8/include/v8-version.h"); eval h.each_line.with_object([]) { |l, e| l =~ /#define (V8_[A-Z_]+)\s(\d+)/ && e << "#{$1} = #{$2}" }.join(";"); puts "#{V8_MAJOR_VERSION}.#{V8_MINOR_VERSION}.#{V8_BUILD_NUMBER}.#{V8_PATCH_LEVEL}"' | tee libv8_version_h
+            diff libv8_version_h libv8_version
+      - name: Build gem
+        run: |
+            bundle exec rake build
+      - name: Upload gem
+        uses: actions/upload-artifact@v1
+        with:
+          name: gem-${{ steps.set-metadata.outputs.GEM_VERSION  }}-ruby
+          path: pkg
+  build-darwin:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - x86_64
+          # arm64
+    name: Build (darwin)
     runs-on: macos-10.15
     steps:
-        - name: Checkout
-          uses: actions/checkout@v2
-        - name: Bundle
-          run: bundle install
-        - name: Set metadata
-          id: set-metadata
-          run: |
-              bundle exec ruby -e 'puts RUBY_PLATFORM' | tee ruby_platform
-              echo "::set-output name=RUBY_PLATFORM::$(cat ruby_platform)"
-              bundle exec ruby -e 'puts Gem.platforms.last.to_s' | tee gem_platform
-              echo "::set-output name=GEM_PLATFORM::$(cat gem_platform)"
-              bundle exec ruby -e 'puts Libv8::Node::VERSION' | tee gem_version
-              echo "::set-output name=GEM_VERSION::$(cat gem_version)"
-              bundle exec ruby -e 'puts Libv8::Node::NODE_VERSION' | tee node_version
-              echo "::set-output name=NODE_VERSION::$(cat node_version)"
-              bundle exec ruby -e 'puts Libv8::Node::LIBV8_VERSION' | tee libv8_version
-              echo "::set-output name=LIBV8_VERSION::$(cat libv8_version)"
-        - name: Download Node.js
-          run: |
-              ./libexec/download-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
-        - name: Extract Node.js
-          run: |
-              ./libexec/extract-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
-        - name: Validate V8 version
-          run: |
-              ruby -e 'h = File.read("src/node-${{ steps.set-metadata.outputs.NODE_VERSION }}/deps/v8/include/v8-version.h"); eval h.each_line.with_object([]) { |l, e| l =~ /#define (V8_[A-Z_]+)\s(\d+)/ && e << "#{$1} = #{$2}" }.join(";"); puts "#{V8_MAJOR_VERSION}.#{V8_MINOR_VERSION}.#{V8_BUILD_NUMBER}.#{V8_PATCH_LEVEL}"' | tee libv8_version_h
-              diff libv8_version_h libv8_version
-        - name: Build V8
-          run: |
-              ./libexec/build-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
-        - name: Build Monolith
-          run: |
-              ./libexec/build-monolith ${{ steps.set-metadata.outputs.NODE_VERSION }}
-        - name: Inject V8
-          run: |
-              ./libexec/inject-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
-        - name: Build binary gems
-          run: |
-              bundle exec rake binary:all
-        - name: Upload V8
-          uses: actions/upload-artifact@v1
-          with:
-            name: v8-${{ steps.set-metadata.outputs.LIBV8_VERSION  }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
-            path: vendor
-        - name: Upload gem
-          uses: actions/upload-artifact@v1
-          with:
-            name: gem-${{ steps.set-metadata.outputs.GEM_VERSION  }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
-            path: pkg
-  build-linux-glibc:
-    name: Build (x86_64-linux-gnu)
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Bundle
+        run: bundle install
+      - name: Set metadata
+        id: set-metadata
+        run: |
+            bundle exec ruby -e 'puts RUBY_PLATFORM' | tee ruby_platform
+            echo "::set-output name=RUBY_PLATFORM::$(cat ruby_platform)"
+            bundle exec ruby -e 'puts Gem.platforms.last.to_s' | tee gem_platform
+            echo "::set-output name=GEM_PLATFORM::$(cat gem_platform)"
+            bundle exec ruby -e 'puts Libv8::Node::VERSION' | tee gem_version
+            echo "::set-output name=GEM_VERSION::$(cat gem_version)"
+            bundle exec ruby -e 'puts Libv8::Node::NODE_VERSION' | tee node_version
+            echo "::set-output name=NODE_VERSION::$(cat node_version)"
+            bundle exec ruby -e 'puts Libv8::Node::LIBV8_VERSION' | tee libv8_version
+            echo "::set-output name=LIBV8_VERSION::$(cat libv8_version)"
+      - name: Download Node.js
+        run: |
+            ./libexec/download-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
+      - name: Extract Node.js
+        run: |
+            ./libexec/extract-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
+      - name: Validate V8 version
+        run: |
+            ruby -e 'h = File.read("src/node-${{ steps.set-metadata.outputs.NODE_VERSION }}/deps/v8/include/v8-version.h"); eval h.each_line.with_object([]) { |l, e| l =~ /#define (V8_[A-Z_]+)\s(\d+)/ && e << "#{$1} = #{$2}" }.join(";"); puts "#{V8_MAJOR_VERSION}.#{V8_MINOR_VERSION}.#{V8_BUILD_NUMBER}.#{V8_PATCH_LEVEL}"' | tee libv8_version_h
+            diff libv8_version_h libv8_version
+      - name: Build V8
+        run: |
+            ./libexec/build-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
+      - name: Build Monolith
+        run: |
+            ./libexec/build-monolith ${{ steps.set-metadata.outputs.NODE_VERSION }}
+      - name: Inject V8
+        run: |
+            ./libexec/inject-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
+      - name: Build binary gems
+        run: |
+            bundle exec rake binary:all
+      - name: Upload V8
+        uses: actions/upload-artifact@v1
+        with:
+          name: v8-${{ steps.set-metadata.outputs.LIBV8_VERSION  }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
+          path: vendor
+      - name: Upload gem
+        uses: actions/upload-artifact@v1
+        with:
+          name: gem-${{ steps.set-metadata.outputs.GEM_VERSION  }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
+          path: pkg
+  build-linux:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - amd64
+          - arm64
+          - arm
+          - ppc64le
+          - s390x
+        libc:
+          - gnu
+          - musl
+    name: Build (linux)
     runs-on: ubuntu-20.04
-    container: ruby:2.3
     steps:
-        - name: Checkout
-          uses: actions/checkout@v2
-        - name: Bundle
-          run: bundle install
-        - name: Set metadata
-          id: set-metadata
-          run: |
-              bundle exec ruby -e 'puts RUBY_PLATFORM' | tee ruby_platform
-              echo "::set-output name=RUBY_PLATFORM::$(cat ruby_platform)"
-              bundle exec ruby -e 'puts Gem.platforms.last.to_s' | tee gem_platform
-              echo "::set-output name=GEM_PLATFORM::$(cat gem_platform)"
-              bundle exec ruby -e 'puts Libv8::Node::VERSION' | tee gem_version
-              echo "::set-output name=GEM_VERSION::$(cat gem_version)"
-              bundle exec ruby -e 'puts Libv8::Node::NODE_VERSION' | tee node_version
-              echo "::set-output name=NODE_VERSION::$(cat node_version)"
-              bundle exec ruby -e 'puts Libv8::Node::LIBV8_VERSION' | tee libv8_version
-              echo "::set-output name=LIBV8_VERSION::$(cat libv8_version)"
-        - name: Download Node.js
-          run: |
-              ./libexec/download-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
-        - name: Extract Node.js
-          run: |
-              ./libexec/extract-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
-        - name: Validate V8 version
-          run: |
-              ruby -e 'h = File.read("src/node-${{ steps.set-metadata.outputs.NODE_VERSION }}/deps/v8/include/v8-version.h"); eval h.each_line.with_object([]) { |l, e| l =~ /#define (V8_[A-Z_]+)\s(\d+)/ && e << "#{$1} = #{$2}" }.join(";"); puts "#{V8_MAJOR_VERSION}.#{V8_MINOR_VERSION}.#{V8_BUILD_NUMBER}.#{V8_PATCH_LEVEL}"' | tee libv8_version_h
-              diff libv8_version_h libv8_version
-        - name: Build V8
-          run: |
-              ./libexec/build-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
-        - name: Build Monolith
-          run: |
-              ./libexec/build-monolith ${{ steps.set-metadata.outputs.NODE_VERSION }}
-        - name: Inject V8
-          run: |
-              ./libexec/inject-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
-        - name: Build binary gem
-          run: |
-              bundle exec rake binary
-        - name: Upload V8
-          uses: actions/upload-artifact@v1
-          with:
-            name: v8-${{ steps.set-metadata.outputs.LIBV8_VERSION  }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
-            path: vendor
-        - name: Upload gem
-          uses: actions/upload-artifact@v1
-          with:
-            name: gem-${{ steps.set-metadata.outputs.GEM_VERSION  }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
-            path: pkg
-  build-linux-musl:
-    name: Build (x86_64-linux-musl)
-    runs-on: ubuntu-20.04
-    container: ruby:2.3-alpine
-    steps:
-        - name: Install system dependencies
-          run: apk add --no-cache build-base linux-headers bash python2 python3 git curl tar clang binutils-gold
-        - name: Checkout
-          uses: actions/checkout@v2
-        - name: Bundle
-          run: bundle install
-        - name: Set metadata
-          id: set-metadata
-          run: |
-              bundle exec ruby -e 'puts RUBY_PLATFORM' | tee ruby_platform
-              echo "::set-output name=RUBY_PLATFORM::$(cat ruby_platform)"
-              bundle exec ruby -e 'puts Gem::Platform.local.tap { |p| RUBY_PLATFORM =~ /musl/ && p.version.nil? and p.instance_eval { @version = "musl" } }' | tee gem_platform
-              echo "::set-output name=GEM_PLATFORM::$(cat gem_platform)"
-              bundle exec ruby -e 'puts Libv8::Node::VERSION' | tee gem_version
-              echo "::set-output name=GEM_VERSION::$(cat gem_version)"
-              bundle exec ruby -e 'puts Libv8::Node::NODE_VERSION' | tee node_version
-              echo "::set-output name=NODE_VERSION::$(cat node_version)"
-              bundle exec ruby -e 'puts Libv8::Node::LIBV8_VERSION' | tee libv8_version
-              echo "::set-output name=LIBV8_VERSION::$(cat libv8_version)"
-        - name: Download Node.js
-          run: |
-              ./libexec/download-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
-        - name: Extract Node.js
-          run: |
-              ./libexec/extract-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
-        - name: Validate V8 version
-          run: |
-              ruby -e 'h = File.read("src/node-${{ steps.set-metadata.outputs.NODE_VERSION }}/deps/v8/include/v8-version.h"); eval h.each_line.with_object([]) { |l, e| l =~ /#define (V8_[A-Z_]+)\s(\d+)/ && e << "#{$1} = #{$2}" }.join(";"); puts "#{V8_MAJOR_VERSION}.#{V8_MINOR_VERSION}.#{V8_BUILD_NUMBER}.#{V8_PATCH_LEVEL}"' | tee libv8_version_h
-              diff libv8_version_h libv8_version
-        - name: Build V8
-          run: |
-              ./libexec/build-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
-        - name: Build Monolith
-          run: |
-              ./libexec/build-monolith ${{ steps.set-metadata.outputs.NODE_VERSION }}
-        - name: Inject V8
-          run: |
-              ./libexec/inject-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
-        - name: Build binary gem
-          run: |
-              bundle exec rake binary
-        - name: Prepare artifacts
-          run: |
-              mkdir -p ${{ runner.temp }}/workspace
-              cp -Rv pkg ${{ runner.temp }}/workspace/
-              cp -Rv vendor ${{ runner.temp }}/workspace/
-        - name: Upload V8
-          uses: actions/upload-artifact@v1
-          with:
-            name: v8-${{ steps.set-metadata.outputs.LIBV8_VERSION  }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
-            path: vendor
-        - name: Upload gem
-          uses: actions/upload-artifact@v1
-          with:
-            name: gem-${{ steps.set-metadata.outputs.GEM_VERSION  }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
-            path: pkg
+      - name: Enable ${{ matrix.platform }} platform
+        id: qemu
+        if: ${{ matrix.platform != 'amd64' }}
+        run: |
+          docker run --privileged --rm tonistiigi/binfmt:latest --install ${{ matrix.platform }} | tee platforms.json
+          echo "::set-output name=platforms::$(cat platforms.json)"
+      - name: Start container
+        id: container
+        run: |
+          case ${{ matrix.libc }} in
+            gnu)
+              echo 'ruby:2.3'
+              ;;
+            musl)
+              echo 'ruby:2.3-alpine'
+              ;;
+          esac > container_image
+          echo "::set-output name=image::$(cat container_image)"
+          docker run --rm -d -v "${PWD}":"${PWD}" -w "${PWD}" --platform linux/${{ matrix.platform }} $(cat container_image) /bin/sleep 64d | tee container_id
+          docker exec -w "${PWD}" $(cat container_id) uname -a
+          echo "::set-output name=id::$(cat container_id)"
+      - name: Install Alpine system dependencies
+        if: ${{ matrix.libc == 'musl' }}
+        run: docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apk add --no-cache build-base linux-headers bash python2 python3 git curl tar clang binutils-gold
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Bundle
+        run: docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle install
+      - name: Set metadata
+        id: set-metadata
+        run: |
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle exec ruby -e 'puts RUBY_PLATFORM' | tee ruby_platform
+            echo "::set-output name=RUBY_PLATFORM::$(cat ruby_platform)"
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle exec ruby -e 'puts Gem::Platform.local.tap { |p| RUBY_PLATFORM =~ /musl/ && p.version.nil? and p.instance_eval { @version = "musl" } }' | tee gem_platform
+            echo "::set-output name=GEM_PLATFORM::$(cat gem_platform)"
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle exec ruby -e 'puts Libv8::Node::VERSION' | tee gem_version
+            echo "::set-output name=GEM_VERSION::$(cat gem_version)"
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle exec ruby -e 'puts Libv8::Node::NODE_VERSION' | tee node_version
+            echo "::set-output name=NODE_VERSION::$(cat node_version)"
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle exec ruby -e 'puts Libv8::Node::LIBV8_VERSION' | tee libv8_version
+            echo "::set-output name=LIBV8_VERSION::$(cat libv8_version)"
+      - name: Download Node.js
+        run: |
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ./libexec/download-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
+      - name: Extract Node.js
+        run: |
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ./libexec/extract-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
+      - name: Validate V8 version
+        run: |
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ruby -e 'h = File.read("src/node-${{ steps.set-metadata.outputs.NODE_VERSION }}/deps/v8/include/v8-version.h"); eval h.each_line.with_object([]) { |l, e| l =~ /#define (V8_[A-Z_]+)\s(\d+)/ && e << "#{$1} = #{$2}" }.join(";"); puts "#{V8_MAJOR_VERSION}.#{V8_MINOR_VERSION}.#{V8_BUILD_NUMBER}.#{V8_PATCH_LEVEL}"' | tee libv8_version_h
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} diff libv8_version_h libv8_version
+      - name: Build V8
+        run: |
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ./libexec/build-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
+      - name: Build Monolith
+        run: |
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ./libexec/build-monolith ${{ steps.set-metadata.outputs.NODE_VERSION }}
+      - name: Inject V8
+        run: |
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ./libexec/inject-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
+      - name: Build binary gem
+        run: |
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle exec rake binary
+      - name: Upload V8
+        uses: actions/upload-artifact@v1
+        with:
+          name: v8-${{ steps.set-metadata.outputs.LIBV8_VERSION  }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
+          path: vendor
+      - name: Upload gem
+        uses: actions/upload-artifact@v1
+        with:
+          name: gem-${{ steps.set-metadata.outputs.GEM_VERSION  }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
+          path: pkg

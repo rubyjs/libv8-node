@@ -36,7 +36,16 @@ case "${platform}" in
         ;;
 esac
 
-"${PYTHON}" configure --openssl-no-asm --without-npm --shared --with-intl=small-icu --experimental-enable-pointer-compression
+case "$(uname -m)" in
+    armv7l)
+        enable_pointer_compression=""
+        ;;
+    *)
+        enable_pointer_compression="--experimental-enable-pointer-compression"
+        ;;
+esac
+
+"${PYTHON}" configure --openssl-no-asm --without-npm --shared --with-intl=small-icu ${enable_pointer_compression}
 make BUILDTYPE=Release config.gypi
 make BUILDTYPE=Release out/Makefile
 
