@@ -8,6 +8,25 @@ libexec="$(cd "$(dirname "$0")"; pwd)"
 top="${libexec}/.."
 src="${2:-"${top}/src"}"
 
+sha256sum='e0410328602384357cb33e3fa3bbad8de59449cba12a7d9386fd630fe2d0a74c'
+check_sum() {
+    filename="${1}"
+    expected="${2}"
+    if command -v shasum >/dev/null; then
+        echo "${expected}  ${filename}" | shasum -c
+    elif command -v gsha256sum >/dev/null; then
+        echo "${expected}  ${filename}" | gsha256sum -c
+    else
+        echo "${expected}  ${filename}" | sha256sum -c
+    fi
+}
+
+if [ -f "${src}/node-${version}.tar.gz" ]; then
+    if check_sum "${src}/node-${version}.tar.gz" "${sha256sum}"; then
+        exit 0
+    fi
+fi
+
 platform=$(uname)
 
 case "${platform}" in
@@ -23,3 +42,5 @@ mkdir -p "${src}"
 
 # shellcheck disable=SC2086
 curl ${CURLOPTS} -L -o "${src}/node-${version}.tar.gz" "https://github.com/nodejs/node/archive/v${version}.tar.gz"
+
+check_sum "${src}/node-${version}.tar.gz" "${sha256sum}" && exit 0
