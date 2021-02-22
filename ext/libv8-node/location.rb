@@ -28,6 +28,7 @@ module Libv8::Node
 
         builder = Libv8::Node::Builder.new
         exit_status = builder.build_libv8!
+        builder.remove_intermediates!
 
         super if exit_status == 0
 

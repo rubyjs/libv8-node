@@ -18,6 +18,10 @@ module Libv8::Node
       0
     end
 
+    def remove_intermediates!
+      FileUtils.rm_rf(File.expand_path('../../src', __dir__))
+    end
+
     private
 
     def download_node(version)
