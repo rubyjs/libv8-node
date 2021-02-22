@@ -3,4 +3,4 @@
 /vendor
 /Gemfile.lock
 *.gem
-/Makefile
+Makefile

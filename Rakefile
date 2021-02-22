@@ -19,7 +19,9 @@ module Helpers
 end
 
 task :compile do
-  sh 'ruby ext/libv8-node/extconf.rb'
+  Dir.chdir('ext/libv8-node') do # gem install behaves like that
+    sh 'ruby extconf.rb'
+  end
 end
 
 task :binary, [:platform] => [:compile] do |_, args|
