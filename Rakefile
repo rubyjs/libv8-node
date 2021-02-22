@@ -55,7 +55,7 @@ end
 
 namespace :binary do
   task all: :binary do
-    return unless RUBY_PLATFORM =~ /darwin-?(\d+)/
+    next unless RUBY_PLATFORM =~ /darwin-?(\d+)/
 
     current = Integer($1)
 
