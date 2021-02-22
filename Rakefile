@@ -19,6 +19,8 @@ module Helpers
 end
 
 task :compile do
+  next if Dir['vendor/v8/out.gn/**/*.a'].any?
+
   Dir.chdir('ext/libv8-node') do # gem install behaves like that
     sh 'ruby extconf.rb'
   end
