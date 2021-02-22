@@ -27,6 +27,8 @@ jobs:
        run: shellcheck libexec/*
   build-ruby:
     name: Build (ruby)
+    outputs:
+      GEM_VERSION: ${{ steps.set-metadata.outputs.GEM_VERSION }}
     runs-on: ubuntu-20.04
     container: ruby:2.3
     steps:
@@ -73,6 +75,8 @@ jobs:
           - x86_64
           # arm64
     name: Build (darwin)
+    outputs:
+      GEM_VERSION: ${{ steps.set-metadata.outputs.GEM_VERSION }}
     runs-on: macos-10.15
     steps:
       - name: Checkout
@@ -138,6 +142,8 @@ jobs:
           - gnu
           - musl
     name: Build (linux)
+    outputs:
+      GEM_VERSION: ${{ steps.set-metadata.outputs.GEM_VERSION }}
     runs-on: ubuntu-20.04
     steps:
       - name: Enable ${{ matrix.platform }} platform
@@ -213,3 +219,124 @@ jobs:
         with:
           name: gem-${{ steps.set-metadata.outputs.GEM_VERSION  }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
           path: pkg
+  test-ruby:
+    name: Test (ruby)
+    needs: build-ruby
+    runs-on: ubuntu-20.04
+    container: ruby:2.3
+    steps:
+      - name: Set metadata
+        id: set-metadata
+        run: |
+            ruby -e 'puts Gem.platforms.last.to_s' | tee gem_platform
+            echo "::set-output name=GEM_PLATFORM::$(cat gem_platform)"
+      - name: Download a single artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: gem-${{ needs.build-ruby.outputs.GEM_VERSION  }}-ruby
+          path: pkg
+      - name: Install gem
+        run: gem install pkg/libv8-node-*.gem
+      - name: Test with mini_racer
+        run: |
+          git clone https://github.com/rubyjs/mini_racer.git --depth 1
+          cd mini_racer
+          git fetch origin pull/186/head
+          git checkout FETCH_HEAD
+          bundle install
+          bundle exec rake compile
+          bundle exec rake test
+  test-darwin:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - x86_64
+          # arm64
+    name: Test (darwin)
+    needs: build-darwin
+    runs-on: macos-10.15
+    steps:
+      - name: Set metadata
+        id: set-metadata
+        run: |
+            ruby -e 'puts Gem.platforms.last.to_s' | tee gem_platform
+            echo "::set-output name=GEM_PLATFORM::$(cat gem_platform)"
+      - name: Download a single artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: gem-${{ needs.build-darwin.outputs.GEM_VERSION  }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
+          path: pkg
+      - name: Install gem
+        run: gem install pkg/libv8-node-*.gem
+      - name: Test with mini_racer
+        run: |
+          git clone https://github.com/rubyjs/mini_racer.git --depth 1
+          cd mini_racer
+          git fetch origin pull/186/head
+          git checkout FETCH_HEAD
+          bundle install
+          bundle exec rake compile
+          bundle exec rake test
+  test-linux:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - amd64
+          # arm64
+          # arm
+          # ppc64le
+          # s390x
+        libc:
+          - gnu
+          - musl
+    name: Test (linux)
+    needs: build-linux
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Enable ${{ matrix.platform }} platform
+        id: qemu
+        if: ${{ matrix.platform != 'amd64' }}
+        run: |
+          docker run --privileged --rm tonistiigi/binfmt:latest --install ${{ matrix.platform }} | tee platforms.json
+          echo "::set-output name=platforms::$(cat platforms.json)"
+      - name: Start container
+        id: container
+        run: |
+          case ${{ matrix.libc }} in
+            gnu)
+              echo 'ruby:2.3'
+              ;;
+            musl)
+              echo 'ruby:2.3-alpine'
+              ;;
+          esac > container_image
+          echo "::set-output name=image::$(cat container_image)"
+          docker run --rm -d -v "${PWD}":"${PWD}" -w "${PWD}" --platform linux/${{ matrix.platform }} $(cat container_image) /bin/sleep 64d | tee container_id
+          docker exec -w "${PWD}" $(cat container_id) uname -a
+          echo "::set-output name=id::$(cat container_id)"
+      - name: Install Alpine system dependencies
+        if: ${{ matrix.libc == 'musl' }}
+        run: docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apk add --no-cache build-base git
+      - name: Set metadata
+        id: set-metadata
+        run: |
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ruby -e 'puts Gem.platforms.last.to_s' | tee gem_platform
+            echo "::set-output name=GEM_PLATFORM::$(cat gem_platform)"
+      - name: Download a single artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: gem-${{ needs.build-linux.outputs.GEM_VERSION  }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
+          path: pkg
+      - name: Install gem
+        run: docker exec -w "${PWD}" ${{ steps.container.outputs.id }} gem install pkg/libv8-node-*.gem
+      - name: Test with mini_racer
+        run: |
+          git clone https://github.com/rubyjs/mini_racer.git --depth 1
+          cd mini_racer
+          git fetch origin pull/186/head
+          git checkout FETCH_HEAD
+          docker exec -w "${PWD}/mini_racer" ${{ steps.container.outputs.id }} bundle install
+          docker exec -w "${PWD}/mini_racer" ${{ steps.container.outputs.id }} bundle exec rake compile
+          docker exec -w "${PWD}/mini_racer" ${{ steps.container.outputs.id }} bundle exec rake test
