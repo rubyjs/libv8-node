@@ -8,16 +8,17 @@ WORKDIR /code
 
 ARG NODE_VERSION=15.5.1
 
-COPY download-node /code/
-RUN ./download-node ${NODE_VERSION}
-COPY extract-node /code/
-RUN ./extract-node ${NODE_VERSION}
-COPY build-libv8 /code/
-RUN ./build-libv8 ${NODE_VERSION}
-COPY build-monolith /code/
-RUN ./build-monolith ${NODE_VERSION}
-COPY inject-libv8 /code/
-RUN ./inject-libv8 ${NODE_VERSION}
+COPY libexec/download-node /code/libexec/
+RUN ./libexec/download-node ${NODE_VERSION}
+COPY libexec/extract-node /code/libexec/
+COPY patch/* /code/patch/
+RUN ./libexec/extract-node ${NODE_VERSION}
+COPY libexec/build-libv8 /code/libexec/
+RUN ./libexec/build-libv8 ${NODE_VERSION}
+COPY libexec/build-monolith /code/libexec/
+RUN ./libexec/build-monolith ${NODE_VERSION}
+COPY libexec/inject-libv8 /code/libexec/
+RUN ./libexec/inject-libv8 ${NODE_VERSION}
 
 COPY Gemfile libv8-node.gemspec /code/
 COPY lib/libv8/node/version.rb /code/lib/libv8/node/version.rb

@@ -45,4 +45,5 @@ for lib in libv8_monolith.a; do
     "${STRIP}" -S -x -o "${dir}/${lib}" "${lib}"
 done
 
+mkdir -p "${top}/ext/libv8-node"
 echo '--- !ruby/object:Libv8::Node::Location::Vendor {}' > "${top}/ext/libv8-node/.location.yml"
