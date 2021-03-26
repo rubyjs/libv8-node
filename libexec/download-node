@@ -8,7 +8,7 @@ libexec="$(cd "$(dirname "$0")"; pwd)"
 top="${libexec}/.."
 src="${2:-"${top}/src"}"
 
-sha256sum='e0410328602384357cb33e3fa3bbad8de59449cba12a7d9386fd630fe2d0a74c'
+sha256sum='b58e9860e3683cc9cce100b5652cf387a98c6a4dbbfa1673d0aeb6b70334b913'
 check_sum() {
     filename="${1}"
     expected="${2}"
