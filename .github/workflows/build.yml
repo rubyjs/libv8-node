@@ -160,7 +160,7 @@ jobs:
               echo 'ruby:2.3'
               ;;
             musl)
-              echo 'ruby:2.3-alpine'
+              echo 'ruby:2.4-alpine'
               ;;
           esac > container_image
           echo "::set-output name=image::$(cat container_image)"
@@ -233,16 +233,19 @@ jobs:
       - name: Download a single artifact
         uses: actions/download-artifact@v2
         with:
-          name: gem-${{ needs.build-ruby.outputs.GEM_VERSION  }}-ruby
+          name: gem-${{ needs.build-ruby.outputs.GEM_VERSION }}-ruby
           path: pkg
       - name: Install gem
-        run: gem install pkg/libv8-node-*.gem
+        run: gem install pkg/libv8-node-${{ needs.build-ruby.outputs.GEM_VERSION }}.gem
       - name: Test with mini_racer
         run: |
-          git clone https://github.com/rubyjs/mini_racer.git --depth 1
-          cd mini_racer
-          git fetch origin pull/186/head
+          git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
+          cd test/mini_racer
+          git fetch origin refs/pull/186/head
           git checkout FETCH_HEAD
+          git reset --hard
+          git clean -f -d -x
+          ruby -i -ne '$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"${{ needs.build-ruby.outputs.GEM_VERSION }}\"\n") : print' lib/mini_racer/version.rb
           bundle install
           bundle exec rake compile
           bundle exec rake test
@@ -265,16 +268,19 @@ jobs:
       - name: Download a single artifact
         uses: actions/download-artifact@v2
         with:
-          name: gem-${{ needs.build-darwin.outputs.GEM_VERSION  }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
+          name: gem-${{ needs.build-darwin.outputs.GEM_VERSION }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
           path: pkg
       - name: Install gem
-        run: gem install pkg/libv8-node-*.gem
+        run: gem install pkg/libv8-node-${{ needs.build-darwin.outputs.GEM_VERSION }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}.gem
       - name: Test with mini_racer
         run: |
-          git clone https://github.com/rubyjs/mini_racer.git --depth 1
-          cd mini_racer
-          git fetch origin pull/186/head
+          git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
+          cd test/mini_racer
+          git fetch origin refs/pull/186/head
           git checkout FETCH_HEAD
+          git reset --hard
+          git clean -f -d -x
+          ruby -i -ne '$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"${{ needs.build-darwin.outputs.GEM_VERSION }}\"\n") : print' lib/mini_racer/version.rb
           bundle install
           bundle exec rake compile
           bundle exec rake test
@@ -309,7 +315,7 @@ jobs:
               echo 'ruby:2.3'
               ;;
             musl)
-              echo 'ruby:2.3-alpine'
+              echo 'ruby:2.7-alpine'
               ;;
           esac > container_image
           echo "::set-output name=image::$(cat container_image)"
@@ -318,7 +324,7 @@ jobs:
           echo "::set-output name=id::$(cat container_id)"
       - name: Install Alpine system dependencies
         if: ${{ matrix.libc == 'musl' }}
-        run: docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apk add --no-cache build-base git
+        run: docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apk add --no-cache build-base git libstdc++
       - name: Set metadata
         id: set-metadata
         run: |
@@ -327,16 +333,19 @@ jobs:
       - name: Download a single artifact
         uses: actions/download-artifact@v2
         with:
-          name: gem-${{ needs.build-linux.outputs.GEM_VERSION  }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
+          name: gem-${{ needs.build-linux.outputs.GEM_VERSION }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
           path: pkg
       - name: Install gem
-        run: docker exec -w "${PWD}" ${{ steps.container.outputs.id }} gem install pkg/libv8-node-*.gem
+        run: docker exec -w "${PWD}" ${{ steps.container.outputs.id }} gem install pkg/libv8-node-${{ needs.build-linux.outputs.GEM_VERSION }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}.gem
       - name: Test with mini_racer
         run: |
-          git clone https://github.com/rubyjs/mini_racer.git --depth 1
-          cd mini_racer
-          git fetch origin pull/186/head
+          git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
+          cd test/mini_racer
+          git fetch origin refs/pull/186/head
           git checkout FETCH_HEAD
-          docker exec -w "${PWD}/mini_racer" ${{ steps.container.outputs.id }} bundle install
-          docker exec -w "${PWD}/mini_racer" ${{ steps.container.outputs.id }} bundle exec rake compile
-          docker exec -w "${PWD}/mini_racer" ${{ steps.container.outputs.id }} bundle exec rake test
+          git reset --hard
+          git clean -f -d -x
+          ruby -i -ne '$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"${{ needs.build-linux.outputs.GEM_VERSION }}\"\n") : print' lib/mini_racer/version.rb
+          docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle install
+          docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle exec rake compile
+          docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle exec rake test
