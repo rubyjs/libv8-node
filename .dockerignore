@@ -3,6 +3,8 @@
 /vendor
 /Gemfile.lock
 *.gem
-/Makefile
+Makefile
 *.so
 *.bundle
+/ext/libv8-node/.location.yml
+/test/mini_racer
