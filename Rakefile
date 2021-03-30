@@ -64,7 +64,7 @@ namespace :binary do
 
     first = if RUBY_PLATFORM =~ /\barm64e?-/
               20 # arm64 darwin is only available since darwin20
-            elsif major == '10'
+            elsif major == 10
               minor + 4 # macos 10.X => darwinY offset, 10.15 is darwin19
             else
               minor + 20 # maxos 11.X => darwinY offset, 11.0 is darwin20
