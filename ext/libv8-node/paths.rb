@@ -24,7 +24,7 @@ module Libv8::Node
     end
 
     def vendored_source_path
-      File.expand_path "../../../vendor/v8", __FILE__
+      File.expand_path('../../vendor/v8', __dir__)
     end
   end
 end

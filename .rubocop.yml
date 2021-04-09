@@ -1,0 +1,28 @@
+AllCops:
+  TargetRubyVersion: 2.0
+  Exclude:
+    - src/**/*
+    - pkg/**/*
+    - vendor/**/*
+
+Naming/FileName:
+  Exclude:
+    - lib/libv8-node.rb
+
+Style/Documentation:
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/NumericPredicate:
+  Enabled: false
+
+Metrics/LineLength:
+  Enabled: false
+
+Style/WordArray:
+  Enabled: false
+
+Style/PerlBackrefs:
+  Enabled: false

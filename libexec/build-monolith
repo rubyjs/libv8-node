@@ -1,0 +1,46 @@
+#!/bin/sh
+
+set -e
+set -u
+
+version="${1}"
+libexec="$(cd "$(dirname "$0")"; pwd)"
+top="${libexec}/.."
+src="${2:-"${top}/src"}"
+
+cd "${src}/node-${version}"
+
+BASEDIR="${PWD}"
+BUILDTYPE="${BUILDTYPE:-Release}"
+LIBV8_MONOLITH="libv8_monolith.a"
+
+cd "out/${BUILDTYPE}/obj.target"
+
+platform=$(uname)
+
+rm -f "${LIBV8_MONOLITH}"
+case "${platform}" in
+    "SunOS")
+        /usr/xpg4/bin/find . -path "./torque_*/**/*.o" -or -path "./v8*/**/*.o" -or -path "./icu*/**/*.o" | sort | uniq | while read -r obj; do
+            ar cqS "${LIBV8_MONOLITH}" "${obj}"
+        done
+        ranlib "${LIBV8_MONOLITH}"
+        ;;
+    "Darwin")
+        /usr/bin/find . -path "./torque_*/**/*.o" -or -path "./v8*/**/*.o" -or -path "./icu*/**/*.o" | sort | uniq | while read -r obj; do
+            /usr/bin/ar -cqS "${LIBV8_MONOLITH}" "${obj}"
+        done
+        /usr/bin/ranlib "${LIBV8_MONOLITH}"
+        ;;
+    "Linux")
+        find . -path "./torque_*/**/*.o" -or -path "./v8*/**/*.o" -or -path "./icu*/**/*.o" | sort | uniq | while read -r obj; do
+            ar -cq "${LIBV8_MONOLITH}" "${obj}"
+        done
+        ;;
+    *)
+      echo "Unsupported platform: ${platform}"
+      exit 1
+      ;;
+esac
+
+mv -f "${LIBV8_MONOLITH}" "${BASEDIR}/out/${BUILDTYPE}/${LIBV8_MONOLITH}"

@@ -4,5 +4,7 @@
 /Gemfile.lock
 *.gem
 Makefile
+*.so
+*.bundle
 /ext/libv8-node/.location.yml
 /test/mini_racer

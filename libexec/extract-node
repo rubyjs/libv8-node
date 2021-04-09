@@ -1,0 +1,39 @@
+#!/bin/sh
+
+set -e
+set -u
+
+version="${1}"
+libexec="$(cd "$(dirname "$0")"; pwd)"
+top="${libexec}/.."
+src="${2:-"${top}/src"}"
+
+platform=$(uname)
+
+case "${platform}" in
+    SunOS)
+        TAR="${TAR:-gtar}"
+        ;;
+    *)
+        TAR="${TAR:-tar}"
+        ;;
+esac
+
+"${TAR}" -C "${src}" -xz -f "${src}/node-${version}.tar.gz"
+
+cd "${src}/node-${version}"
+
+patch -p1 < "${top}"/patch/gyp-libv8_monolith.patch
+patch -p1 < "${top}"/patch/py2-icutrim.patch
+patch -p1 < "${top}"/patch/py2-genv8constants.patch
+
+# TODO: the following still fails on py3 so the above one forcing py2 is needed
+# patch -p1 < ../../py3-genv8constants.patch
+#
+# This is the error:
+#
+#     Traceback (most recent call last):
+#       File "tools/genv8constants.py", line 99, in <module>
+#         curr_val += int('0x%s' % octetstr, 16) << (curr_octet * 8)
+#     ValueError: invalid literal for int() with base 16: "0xb'04 '"
+#     node_dtrace_ustack.target.mk:13: recipe for target '/usbkey/user_home/vagrant/ruby-libv8-node/src/node-14.14.0/out/Release/obj/gen/v8constants.h' failed

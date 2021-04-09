@@ -4,12 +4,25 @@ set -e
 set -u
 
 version="${1}"
-top="${PWD}"
+libexec="$(cd "$(dirname "$0")"; pwd)"
+top="${libexec}/.."
+src="${2:-"${top}/src"}"
 
-cd "src/node-${version}"
+cd "${src}/node-${version}"
 
 BASEDIR="${PWD}"
 BUILDTYPE="${BUILDTYPE:-Release}"
+
+platform=$(uname)
+
+case "${platform}" in
+    SunOS)
+        STRIP="${STRIP:-gstrip}"
+        ;;
+    *)
+        STRIP="${STRIP:-strip}"
+        ;;
+esac
 
 cd "${BASEDIR}/deps/v8/include"
 
@@ -23,9 +36,14 @@ done
 cd "${BASEDIR}/out/${BUILDTYPE}"
 
 rm -rf "${top}/vendor/v8/out.gn"
+# shellcheck disable=SC2043
 for lib in libv8_monolith.a; do
     dir="${top}/vendor/v8/out.gn/libv8/obj/$(dirname "${lib}")"
     mkdir -p "${dir}"
-    rm -fv "${dir}/${lib}"
-    strip -S -x -o "${dir}/${lib}" "${lib}"
+    rm -f "${dir}/${lib}"
+
+    "${STRIP}" -S -x -o "${dir}/${lib}" "${lib}"
 done
+
+mkdir -p "${top}/ext/libv8-node"
+echo '--- !ruby/object:Libv8::Node::Location::Vendor {}' > "${top}/ext/libv8-node/.location.yml"
