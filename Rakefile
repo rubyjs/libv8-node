@@ -60,7 +60,7 @@ namespace :binary do
     current = Integer($1)
 
     Helpers.binary_gemspec # loads NODE_VERSION
-    major, minor = File.read(Dir["src/node-#{Libv8::Node::NODE_VERSION}/common.gypi"].last).lines.find { |l| l =~ /-mmacosx-version-min=(\d+).(\d+)/ } && [Integer($1), Integer($2)]
+    major, minor = File.read(Dir["src/node-v#{Libv8::Node::NODE_VERSION}/common.gypi"].last).lines.find { |l| l =~ /-mmacosx-version-min=(\d+).(\d+)/ } && [Integer($1), Integer($2)]
 
     first = if RUBY_PLATFORM =~ /\barm64e?-/
               20 # arm64 darwin is only available since darwin20

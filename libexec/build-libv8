@@ -15,7 +15,7 @@ NJOBS="${NJOBS:-1}"
 
 echo "parallel job count: ${NJOBS}"
 
-cd "${src}/node-${version}"
+cd "${src}/node-v${version}"
 
 if command -v python3 >/dev/null 2>&1; then
     PYTHON="${PYTHON:-python3}"

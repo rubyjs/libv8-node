@@ -8,7 +8,7 @@ libexec="$(cd "$(dirname "$0")"; pwd)"
 top="${libexec}/.."
 src="${2:-"${top}/src"}"
 
-sha256sum='e016ab40079a540dc42a6ffc97b1e398d1d50dd9519f859a5539f0309cdea673'
+sha256sum='11d00034a9864660eadf9835d09de2bed97b245093626705d8917897d8f36704'
 check_sum() {
     filename="${1}"
     expected="${2}"
@@ -21,8 +21,8 @@ check_sum() {
     fi
 }
 
-if [ -f "${src}/node-${version}.tar.gz" ]; then
-    if check_sum "${src}/node-${version}.tar.gz" "${sha256sum}"; then
+if [ -f "${src}/node-v${version}.tar.gz" ]; then
+    if check_sum "${src}/node-v${version}.tar.gz" "${sha256sum}"; then
         exit 0
     fi
 fi
@@ -41,6 +41,6 @@ esac
 mkdir -p "${src}"
 
 # shellcheck disable=SC2086
-curl ${CURLOPTS} -L -o "${src}/node-${version}.tar.gz" "https://github.com/nodejs/node/archive/v${version}.tar.gz"
+curl ${CURLOPTS} -L -o "${src}/node-v${version}.tar.gz" "https://nodejs.org/dist/v${version}/node-v${version}.tar.gz"
 
-check_sum "${src}/node-${version}.tar.gz" "${sha256sum}" && exit 0
+check_sum "${src}/node-v${version}.tar.gz" "${sha256sum}" && exit 0

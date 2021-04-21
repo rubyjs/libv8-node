@@ -6,7 +6,7 @@ jobs:
   rubocop:
     name: Lint (Rubocop)
     runs-on: ubuntu-20.04
-    container: ruby:2.3
+    container: ruby:2.4
     steps:
      - name: Checkout
        uses: actions/checkout@v2
@@ -30,7 +30,7 @@ jobs:
     outputs:
       GEM_VERSION: ${{ steps.set-metadata.outputs.GEM_VERSION }}
     runs-on: ubuntu-20.04
-    container: ruby:2.3
+    container: ruby:2.4
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -39,15 +39,15 @@ jobs:
       - name: Set metadata
         id: set-metadata
         run: |
-            bundle exec ruby -e 'puts RUBY_PLATFORM' | tee ruby_platform
+            ./libexec/metadata ruby_platform | tee ruby_platform
             echo "::set-output name=RUBY_PLATFORM::$(cat ruby_platform)"
-            bundle exec ruby -e 'puts Gem.platforms.last.to_s' | tee gem_platform
+            ./libexec/metadata gem_platform | tee gem_platform
             echo "::set-output name=GEM_PLATFORM::$(cat gem_platform)"
-            bundle exec ruby -e 'puts Libv8::Node::VERSION' | tee gem_version
+            ./libexec/metadata gem_version | tee gem_version
             echo "::set-output name=GEM_VERSION::$(cat gem_version)"
-            bundle exec ruby -e 'puts Libv8::Node::NODE_VERSION' | tee node_version
+            ./libexec/metadata node_version | tee node_version
             echo "::set-output name=NODE_VERSION::$(cat node_version)"
-            bundle exec ruby -e 'puts Libv8::Node::LIBV8_VERSION' | tee libv8_version
+            ./libexec/metadata libv8_version | tee libv8_version
             echo "::set-output name=LIBV8_VERSION::$(cat libv8_version)"
       - name: Download Node.js
         run: |
@@ -57,7 +57,7 @@ jobs:
             ./libexec/extract-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
       - name: Validate V8 version
         run: |
-            ruby -e 'h = File.read("src/node-${{ steps.set-metadata.outputs.NODE_VERSION }}/deps/v8/include/v8-version.h"); eval h.each_line.with_object([]) { |l, e| l =~ /#define (V8_[A-Z_]+)\s(\d+)/ && e << "#{$1} = #{$2}" }.join(";"); puts "#{V8_MAJOR_VERSION}.#{V8_MINOR_VERSION}.#{V8_BUILD_NUMBER}.#{V8_PATCH_LEVEL}"' | tee libv8_version_h
+            ./libexec/metadata libv8_version_h | tee libv8_version_h
             diff libv8_version_h libv8_version
       - name: Build gem
         run: |
@@ -86,15 +86,15 @@ jobs:
       - name: Set metadata
         id: set-metadata
         run: |
-            bundle exec ruby -e 'puts RUBY_PLATFORM' | tee ruby_platform
+            ./libexec/metadata ruby_platform | tee ruby_platform
             echo "::set-output name=RUBY_PLATFORM::$(cat ruby_platform)"
-            bundle exec ruby -e 'puts Gem.platforms.last.to_s' | tee gem_platform
+            ./libexec/metadata gem_platform | tee gem_platform
             echo "::set-output name=GEM_PLATFORM::$(cat gem_platform)"
-            bundle exec ruby -e 'puts Libv8::Node::VERSION' | tee gem_version
+            ./libexec/metadata gem_version | tee gem_version
             echo "::set-output name=GEM_VERSION::$(cat gem_version)"
-            bundle exec ruby -e 'puts Libv8::Node::NODE_VERSION' | tee node_version
+            ./libexec/metadata node_version | tee node_version
             echo "::set-output name=NODE_VERSION::$(cat node_version)"
-            bundle exec ruby -e 'puts Libv8::Node::LIBV8_VERSION' | tee libv8_version
+            ./libexec/metadata libv8_version | tee libv8_version
             echo "::set-output name=LIBV8_VERSION::$(cat libv8_version)"
       - name: Download Node.js
         run: |
@@ -104,7 +104,7 @@ jobs:
             ./libexec/extract-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
       - name: Validate V8 version
         run: |
-            ruby -e 'h = File.read("src/node-${{ steps.set-metadata.outputs.NODE_VERSION }}/deps/v8/include/v8-version.h"); eval h.each_line.with_object([]) { |l, e| l =~ /#define (V8_[A-Z_]+)\s(\d+)/ && e << "#{$1} = #{$2}" }.join(";"); puts "#{V8_MAJOR_VERSION}.#{V8_MINOR_VERSION}.#{V8_BUILD_NUMBER}.#{V8_PATCH_LEVEL}"' | tee libv8_version_h
+            ./libexec/metadata libv8_version_h | tee libv8_version_h
             diff libv8_version_h libv8_version
       - name: Build V8
         run: |
@@ -157,7 +157,7 @@ jobs:
         run: |
           case ${{ matrix.libc }} in
             gnu)
-              echo 'ruby:2.3'
+              echo 'ruby:2.4'
               ;;
             musl)
               echo 'ruby:2.4-alpine'
@@ -177,15 +177,15 @@ jobs:
       - name: Set metadata
         id: set-metadata
         run: |
-            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle exec ruby -e 'puts RUBY_PLATFORM' | tee ruby_platform
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ./libexec/metadata ruby_platform | tee ruby_platform
             echo "::set-output name=RUBY_PLATFORM::$(cat ruby_platform)"
-            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle exec ruby -e 'puts Gem::Platform.local.tap { |p| RUBY_PLATFORM =~ /musl/ && p.version.nil? and p.instance_eval { @version = "musl" } }' | tee gem_platform
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ./libexec/metadata gem_platform | tee gem_platform
             echo "::set-output name=GEM_PLATFORM::$(cat gem_platform)"
-            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle exec ruby -e 'puts Libv8::Node::VERSION' | tee gem_version
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ./libexec/metadata gem_version | tee gem_version
             echo "::set-output name=GEM_VERSION::$(cat gem_version)"
-            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle exec ruby -e 'puts Libv8::Node::NODE_VERSION' | tee node_version
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ./libexec/metadata node_version | tee node_version
             echo "::set-output name=NODE_VERSION::$(cat node_version)"
-            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle exec ruby -e 'puts Libv8::Node::LIBV8_VERSION' | tee libv8_version
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ./libexec/metadata libv8_version | tee libv8_version
             echo "::set-output name=LIBV8_VERSION::$(cat libv8_version)"
       - name: Download Node.js
         run: |
@@ -195,7 +195,7 @@ jobs:
             docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ./libexec/extract-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
       - name: Validate V8 version
         run: |
-            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ruby -e 'h = File.read("src/node-${{ steps.set-metadata.outputs.NODE_VERSION }}/deps/v8/include/v8-version.h"); eval h.each_line.with_object([]) { |l, e| l =~ /#define (V8_[A-Z_]+)\s(\d+)/ && e << "#{$1} = #{$2}" }.join(";"); puts "#{V8_MAJOR_VERSION}.#{V8_MINOR_VERSION}.#{V8_BUILD_NUMBER}.#{V8_PATCH_LEVEL}"' | tee libv8_version_h
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ./libexec/metadata libv8_version_h | tee libv8_version_h
             docker exec -w "${PWD}" ${{ steps.container.outputs.id }} diff libv8_version_h libv8_version
       - name: Build V8
         run: |
@@ -223,7 +223,7 @@ jobs:
     name: Test (ruby)
     needs: build-ruby
     runs-on: ubuntu-20.04
-    container: ruby:2.3
+    container: ruby:2.4
     steps:
       - name: Set metadata
         id: set-metadata
@@ -288,6 +288,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        version:
+          - '2.4'
+          - '2.5'
+          - '2.6'
+          - '2.7'
+          - '3.0'
         platform:
           - amd64
           # arm64
@@ -312,10 +318,10 @@ jobs:
         run: |
           case ${{ matrix.libc }} in
             gnu)
-              echo 'ruby:2.3'
+              echo 'ruby:${{ matrix.version }}'
               ;;
             musl)
-              echo 'ruby:2.7-alpine'
+              echo 'ruby:${{ matrix.version }}-alpine'
               ;;
           esac > container_image
           echo "::set-output name=image::$(cat container_image)"

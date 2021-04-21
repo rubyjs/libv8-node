@@ -19,9 +19,9 @@ case "${platform}" in
         ;;
 esac
 
-"${TAR}" -C "${src}" -xz -f "${src}/node-${version}.tar.gz"
+"${TAR}" -C "${src}" -xz -f "${src}/node-v${version}.tar.gz"
 
-cd "${src}/node-${version}"
+cd "${src}/node-v${version}"
 
 patch -p1 < "${top}"/patch/gyp-libv8_monolith.patch
 patch -p1 < "${top}"/patch/py2-icutrim.patch
