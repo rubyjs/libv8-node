@@ -45,7 +45,7 @@ case "$(uname -m)" in
         ;;
 esac
 
-"${PYTHON}" configure --openssl-no-asm --without-npm --shared --with-intl=small-icu ${enable_pointer_compression}
+"${PYTHON}" configure --openssl-no-asm --without-npm --shared --with-intl=full-icu ${enable_pointer_compression}
 make BUILDTYPE=Release config.gypi
 make BUILDTYPE=Release out/Makefile
 
