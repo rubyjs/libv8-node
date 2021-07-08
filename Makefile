@@ -5,7 +5,7 @@ NODE_VERSION := $(shell ./libexec/metadata node_version)
 all:
 
 pkg/libv8-node-$(VERSION)-x86_64-linux.gem:
-	docker build --platform linux/amd64 --build-arg RUBY_VERSION=2.3 --progress plain -t libv8-node:gnu .
+	docker build --platform linux/amd64 --build-arg RUBY_VERSION=2.4 --progress plain -t libv8-node:gnu .
 	docker run --platform linux/amd64 --rm -it -v "$(PWD)/pkg":/pkg libv8-node:gnu cp $@ /pkg/
 
 pkg/libv8-node-$(VERSION)-x86_64-linux-musl.gem:
@@ -13,7 +13,7 @@ pkg/libv8-node-$(VERSION)-x86_64-linux-musl.gem:
 	docker run --platform linux/amd64 --rm -it -v "$(PWD)/pkg":/pkg libv8-node:musl cp $@ /pkg/
 
 pkg/libv8-node-$(VERSION)-aarch64-linux.gem:
-	docker build --platform linux/arm64 --build-arg RUBY_VERSION=2.3 --progress plain -t libv8-node:gnu .
+	docker build --platform linux/arm64 --build-arg RUBY_VERSION=2.4 --progress plain -t libv8-node:gnu .
 	docker run --platform linux/arm64 --rm -it -v "$(PWD)/pkg":/pkg libv8-node:gnu cp $@ /pkg/
 
 pkg/libv8-node-$(VERSION)-aarch64-linux-musl.gem:
