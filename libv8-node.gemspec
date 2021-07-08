@@ -16,6 +16,7 @@ Gem::Specification.new do |s|
             Dir['lib/**/*.rb'] +
             Dir['libexec/*'] +
             Dir['patch/*'] +
+            Dir['sums/*'] +
             ['LICENSE', 'README.md', 'CHANGELOG.md']
 
   s.extensions = ['ext/libv8-node/extconf.rb']

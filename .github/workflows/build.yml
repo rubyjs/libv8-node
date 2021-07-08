@@ -169,7 +169,7 @@ jobs:
           echo "::set-output name=id::$(cat container_id)"
       - name: Install Alpine system dependencies
         if: ${{ matrix.libc == 'musl' }}
-        run: docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apk add --no-cache build-base linux-headers bash python2 python3 git curl tar clang binutils-gold
+        run: docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apk add --no-cache build-base linux-headers bash python2 python3 git curl tar
       - name: Checkout
         uses: actions/checkout@v2
       - name: Bundle

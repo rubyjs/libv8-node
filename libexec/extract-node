@@ -3,23 +3,29 @@
 set -e
 set -u
 
-version="${1}"
 libexec="$(cd "$(dirname "$0")"; pwd)"
 top="${libexec}/.."
 src="${2:-"${top}/src"}"
+version="${1:-$("${libexec}/metadata" node_version)}"
 
-platform=$(uname)
+extract() {
+    dir="${1}"
+    file="${2}"
 
-case "${platform}" in
-    SunOS)
-        TAR="${TAR:-gtar}"
-        ;;
-    *)
-        TAR="${TAR:-tar}"
-        ;;
-esac
+    platform=$(uname)
+    case "${platform}" in
+        SunOS)
+            TAR="${TAR:-gtar}"
+            ;;
+        *)
+            TAR="${TAR:-tar}"
+            ;;
+    esac
 
-"${TAR}" -C "${src}" -xz -f "${src}/node-v${version}.tar.gz"
+    "${TAR}" -C "${dir}" -xz -f "${file}"
+}
+
+extract "${src}" "${src}/node-v${version}.tar.gz"
 
 cd "${src}/node-v${version}"
 

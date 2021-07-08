@@ -3,26 +3,17 @@
 set -e
 set -u
 
-version="${1}"
 libexec="$(cd "$(dirname "$0")"; pwd)"
 top="${libexec}/.."
 src="${2:-"${top}/src"}"
+version="${1:-$("${libexec}/metadata" node_version)}"
 
 cd "${src}/node-v${version}"
 
 BASEDIR="${PWD}"
 BUILDTYPE="${BUILDTYPE:-Release}"
 
-platform=$(uname)
-
-case "${platform}" in
-    SunOS)
-        STRIP="${STRIP:-gstrip}"
-        ;;
-    *)
-        STRIP="${STRIP:-strip}"
-        ;;
-esac
+eval "$("${libexec}/platform")"
 
 cd "${BASEDIR}/deps/v8/include"
 
@@ -35,13 +26,14 @@ done
 
 cd "${BASEDIR}/out/${BUILDTYPE}"
 
-rm -rf "${top}/vendor/v8/out.gn"
+rm -rf "${top}/vendor/v8/${RUBY_TARGET_PLATFORM}"
 # shellcheck disable=SC2043
 for lib in libv8_monolith.a; do
-    dir="${top}/vendor/v8/out.gn/libv8/obj/$(dirname "${lib}")"
+    dir="${top}/vendor/v8/${RUBY_TARGET_PLATFORM}/libv8/obj/$(dirname "${lib}")"
     mkdir -p "${dir}"
     rm -f "${dir}/${lib}"
 
+    echo "${BASEDIR}/out/${BUILDTYPE}/${lib} -> ${dir}/${lib}"
     "${STRIP}" -S -x -o "${dir}/${lib}" "${lib}"
 done
 

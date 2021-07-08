@@ -18,8 +18,19 @@ module Helpers
   end
 end
 
-task :compile do
-  next if Dir['vendor/v8/out.gn/**/*.a'].any?
+task :compile, [:platform] => [] do |_, args|
+  local_platform = Gem::Platform.local.to_s
+  target_platform = ENV['GEM_TARGET_PLATFORM'] || args.to_h[:platform] || Gem::Platform.local.to_s
+
+  puts "local platform: #{local_platform}"
+  puts "target platform: #{target_platform}"
+
+  ENV['GEM_TARGET_PLATFORM'] = target_platform
+
+  if (libs = Dir["vendor/v8/#{target_platform}/**/*.a"]).any?
+    puts "found: #{libs.inspect}"
+    next
+  end
 
   Dir.chdir('ext/libv8-node') do # gem install behaves like that
     sh 'ruby extconf.rb'
@@ -27,7 +38,12 @@ task :compile do
 end
 
 task :binary, [:platform] => [:compile] do |_, args|
-  gemspec = Helpers.binary_gemspec(**args.to_h)
+  local_platform = Gem::Platform.local.to_s
+  target_platform = ENV['GEM_TARGET_PLATFORM'] || args.to_h[:platform] || Gem::Platform.local.to_s
+
+  puts "local platform: #{local_platform}"
+  puts "target platform: #{target_platform}"
+  gemspec = Helpers.binary_gemspec(platform: target_platform)
   gemspec.extensions.clear
 
   # We don't need most things for the binary
@@ -38,7 +54,7 @@ task :binary, [:platform] => [:compile] do |_, args|
 
   # V8
   gemspec.files += Dir['vendor/v8/include/**/*.h']
-  gemspec.files += Dir['vendor/v8/out.gn/**/*.a']
+  gemspec.files += Dir["vendor/v8/#{target_platform}/**/*.a"]
 
   FileUtils.chmod(0o0644, gemspec.files)
   FileUtils.mkdir_p('pkg')
