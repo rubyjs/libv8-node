@@ -6,6 +6,7 @@ module Helpers
   module_function
 
   def binary_gemspec(platform: Gem::Platform.local, str: RUBY_PLATFORM)
+    # TODO: old rubygems and cross compile
     platform.instance_eval { @version = 'musl' } if str =~ /-musl/ && platform.version.nil?
 
     gemspec = eval(File.read('libv8-node.gemspec')) # rubocop:disable Security/Eval
@@ -20,12 +21,12 @@ end
 
 task :compile, [:platform] => [] do |_, args|
   local_platform = Gem::Platform.local.to_s
-  target_platform = ENV['GEM_TARGET_PLATFORM'] || args.to_h[:platform] || Gem::Platform.local.to_s
+  target_platform = ENV['RUBY_TARGET_PLATFORM'] || args.to_h[:platform] || Gem::Platform.local.to_s
 
   puts "local platform: #{local_platform}"
   puts "target platform: #{target_platform}"
 
-  ENV['GEM_TARGET_PLATFORM'] = target_platform
+  ENV['RUBY_TARGET_PLATFORM'] = target_platform
 
   if (libs = Dir["vendor/v8/#{target_platform}/**/*.a"]).any?
     puts "found: #{libs.inspect}"
@@ -38,8 +39,8 @@ task :compile, [:platform] => [] do |_, args|
 end
 
 task :binary, [:platform] => [:compile] do |_, args|
-  local_platform = Gem::Platform.local.to_s
-  target_platform = ENV['GEM_TARGET_PLATFORM'] || args.to_h[:platform] || Gem::Platform.local.to_s
+  local_platform = Gem::Platform.local
+  target_platform = Gem::Platform.new(ENV['RUBY_TARGET_PLATFORM']) || Gem::Platform.new(args.to_h[:platform]) || Gem::Platform.local
 
   puts "local platform: #{local_platform}"
   puts "target platform: #{target_platform}"

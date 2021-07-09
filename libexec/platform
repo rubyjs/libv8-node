@@ -63,7 +63,7 @@ case "${host_platform}" in
 esac
 
 if [ "${host_platform}" != "${target_platform}" ]; then
-    echo "cross compiling host: ${host_platform} target: ${target_platform}"
+    echo "# cross compiling host: ${host_platform} target: ${target_platform}"
     case "${target_platform}" in
         aarch64-*linux*)
             CC='aarch64-linux-gnu-gcc'
@@ -121,6 +121,6 @@ if [ -n "${RUBY_TARGET_PLATFORM:-}" ]; then cat <<EOF; fi
 RUBY_TARGET_PLATFORM='${RUBY_TARGET_PLATFORM}'
 EOF
 
-if [ -n "${CC_host:-}" ]; then cat <<EOF; fi
+if [ -n "${configure_flags:-}" ]; then cat <<EOF; fi
 configure_flags="\${configure_flags:-} ${configure_flags}"
 EOF
