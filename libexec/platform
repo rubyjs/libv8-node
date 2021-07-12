@@ -89,17 +89,18 @@ else
     configure_flags=''
 fi
 
-case "${target_platform}" in
-    arm64-*)
-        configure_flags="${configure_flags} --experimental-enable-pointer-compression"
-        ;;
-    arm*-*linux*)
-        :
-        ;;
-    *)
-        configure_flags="${configure_flags} --experimental-enable-pointer-compression"
-        ;;
-esac
+# TODO: building with pointer compression is broken
+# case "${target_platform}" in
+#     arm64-*)
+#         configure_flags="${configure_flags} --experimental-enable-pointer-compression"
+#         ;;
+#     arm*-*linux*)
+#         :
+#         ;;
+#     *)
+#         configure_flags="${configure_flags} --experimental-enable-pointer-compression"
+#         ;;
+# esac
 
 cat <<EOF
 export CC='${CC}'

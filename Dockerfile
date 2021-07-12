@@ -1,12 +1,12 @@
-ARG RUBY_VERSION=2.3
+ARG RUBY_VERSION=2.4
 FROM ruby:${RUBY_VERSION}
 
-RUN test ! -f /etc/alpine-release || apk add --no-cache build-base bash python2 python3 git curl tar clang binutils-gold
+RUN test ! -f /etc/alpine-release || apk add --no-cache build-base bash python2 python3 git curl tar
 
 RUN mkdir -p /code
 WORKDIR /code
 
-ARG NODE_VERSION=16.0.0
+ARG NODE_VERSION=16.4.2
 
 COPY libexec/download-node /code/libexec/
 RUN ./libexec/download-node ${NODE_VERSION}

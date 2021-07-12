@@ -6,7 +6,7 @@ jobs:
   rubocop:
     name: Lint (Rubocop)
     runs-on: ubuntu-20.04
-    container: ruby:2.4
+    container: ruby:2.6
     steps:
      - name: Checkout
        uses: actions/checkout@v2
@@ -30,7 +30,7 @@ jobs:
     outputs:
       GEM_VERSION: ${{ steps.set-metadata.outputs.GEM_VERSION }}
     runs-on: ubuntu-20.04
-    container: ruby:2.4
+    container: ruby:2.6
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -188,10 +188,10 @@ jobs:
         run: |
           case ${{ matrix.libc }} in
             gnu)
-              echo 'ruby:3.0'
+              echo 'ruby:2.4'
               ;;
             musl)
-              echo 'ruby:3.0-alpine'
+              echo 'ruby:2.4-alpine'
               ;;
           esac | tee container_image
           echo "::set-output name=image::$(cat container_image)"
@@ -200,7 +200,7 @@ jobs:
           echo "::set-output name=id::$(cat container_id)"
       - name: Install Alpine system dependencies
         if: ${{ matrix.libc == 'musl' }}
-        run: docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apk add --no-cache build-base linux-headers bash python2 python3 git curl tar clang
+        run: docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apk add --no-cache build-base linux-headers bash python2 python3 git curl tar
       - name: Install Debian cross-compiler
         if: ${{ matrix.libc == 'gnu' && matrix.platform != 'amd64' }}
         run: |
@@ -259,7 +259,7 @@ jobs:
     name: Test (ruby)
     needs: build-ruby
     runs-on: ubuntu-20.04
-    container: ruby:2.5
+    container: ruby:2.4
     steps:
       - name: Set metadata
         id: set-metadata
