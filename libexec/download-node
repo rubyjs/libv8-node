@@ -24,7 +24,7 @@ download() {
     file="${1}"
     url="${2}"
 
-    platform=$(uname)
+    platform="$(uname)"
 
     case "${platform}" in
         SunOS)
@@ -43,7 +43,11 @@ download() {
     fi
 }
 
-sha256sum=$(cat "${top}/sums/v${version}.sum")
+if [ -f "${top}/sums/v${version}.sum" ]; then
+    sha256sum="$(cat "${top}/sums/v${version}.sum")"
+else
+    sha256sum='0000000000000000000000000000000000000000000000000000000000000000'
+fi
 
 if [ -f "${src}/node-v${version}.tar.gz" ]; then
     if check_sum "${src}/node-v${version}.tar.gz" "${sha256sum}"; then
