@@ -259,7 +259,7 @@ jobs:
     name: Test (ruby)
     needs: build-ruby
     runs-on: ubuntu-20.04
-    container: ruby:2.4
+    container: ruby:2.5
     steps:
       - name: Set metadata
         id: set-metadata
