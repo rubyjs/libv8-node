@@ -272,7 +272,7 @@ jobs:
           name: gem-${{ needs.build-ruby.outputs.GEM_VERSION }}-ruby
           path: pkg
       - name: Install gem
-        run: gem install pkg/libv8-node-${{ needs.build-ruby.outputs.GEM_VERSION }}.gem
+        run: gem install --verbose pkg/libv8-node-${{ needs.build-ruby.outputs.GEM_VERSION }}.gem
       - name: Test with mini_racer
         run: |
           git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
