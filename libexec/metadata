@@ -5,9 +5,9 @@ case "$1" in
         ruby -e 'puts RUBY_PLATFORM'
         ;;
     gem_platform)
-        ruby -e 'puts Gem.platforms.last.to_s'
+        ruby -e 'puts Gem::Platform.local.tap { |p| RUBY_PLATFORM =~ /musl/ && p.version.nil? and p.instance_eval { @version = "musl" } }'
         ;;
-    version)
+    gem_version|version)
         ruby -I'lib' -r'libv8/node/version' -e 'puts Libv8::Node::VERSION'
         ;;
     node_version)
@@ -18,7 +18,7 @@ case "$1" in
         ;;
     libv8_version_h)
         # shellcheck disable=SC2016
-        ruby -e 'h = File.read("src/node-'"$("$0" node_version)"'/deps/v8/include/v8-version.h"); eval h.each_line.with_object([]) { |l, e| l =~ /#define (V8_[A-Z_]+)\s(\d+)/ && e << "#{$1} = #{$2}" }.join(";"); puts "#{V8_MAJOR_VERSION}.#{V8_MINOR_VERSION}.#{V8_BUILD_NUMBER}.#{V8_PATCH_LEVEL}"'
+        ruby -e 'h = File.read("src/node-v'"$("$0" node_version)"'/deps/v8/include/v8-version.h"); eval h.each_line.with_object([]) { |l, e| l =~ /#define (V8_[A-Z_]+)\s(\d+)/ && e << "#{$1} = #{$2}" }.join(";"); puts "#{V8_MAJOR_VERSION}.#{V8_MINOR_VERSION}.#{V8_BUILD_NUMBER}.#{V8_PATCH_LEVEL}"'
         ;;
     *)
         exit 64

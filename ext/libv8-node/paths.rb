@@ -13,7 +13,7 @@ module Libv8::Node
 
     def object_paths
       [Shellwords.escape(File.join(vendored_source_path,
-                                   'out.gn',
+                                   Gem::Platform.local.to_s,
                                    'libv8',
                                    'obj',
                                    "libv8_monolith.#{config['LIBEXT']}"))]

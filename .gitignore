@@ -6,3 +6,6 @@
 Makefile
 /ext/libv8-node/.location.yml
 /test/mini_racer
+*.nix
+*.vim
+.envrc

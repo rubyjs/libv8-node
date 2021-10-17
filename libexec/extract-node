@@ -3,27 +3,33 @@
 set -e
 set -u
 
-version="${1}"
 libexec="$(cd "$(dirname "$0")"; pwd)"
 top="${libexec}/.."
 src="${2:-"${top}/src"}"
+version="${1:-$("${libexec}/metadata" node_version)}"
 
-platform=$(uname)
+extract() {
+    dir="${1}"
+    file="${2}"
 
-case "${platform}" in
-    SunOS)
-        TAR="${TAR:-gtar}"
-        ;;
-    *)
-        TAR="${TAR:-tar}"
-        ;;
-esac
+    platform=$(uname)
+    case "${platform}" in
+        SunOS)
+            TAR="${TAR:-gtar}"
+            ;;
+        *)
+            TAR="${TAR:-tar}"
+            ;;
+    esac
 
-"${TAR}" -C "${src}" -xz -f "${src}/node-${version}.tar.gz"
+    "${TAR}" -C "${dir}" -xz -f "${file}"
+}
 
-cd "${src}/node-${version}"
+extract "${src}" "${src}/node-v${version}.tar.gz"
 
-patch -p1 < "${top}"/patch/gyp-libv8_monolith.patch
+cd "${src}/node-v${version}"
+
+#patch -p1 < "${top}"/patch/gyp-libv8_monolith.patch
 patch -p1 < "${top}"/patch/py2-icutrim.patch
 patch -p1 < "${top}"/patch/py2-genv8constants.patch
 

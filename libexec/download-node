@@ -3,12 +3,11 @@
 set -e
 set -u
 
-version="${1}"
 libexec="$(cd "$(dirname "$0")"; pwd)"
 top="${libexec}/.."
 src="${2:-"${top}/src"}"
+version="${1:-$("${libexec}/metadata" node_version)}"
 
-sha256sum='e016ab40079a540dc42a6ffc97b1e398d1d50dd9519f859a5539f0309cdea673'
 check_sum() {
     filename="${1}"
     expected="${2}"
@@ -21,26 +20,41 @@ check_sum() {
     fi
 }
 
-if [ -f "${src}/node-${version}.tar.gz" ]; then
-    if check_sum "${src}/node-${version}.tar.gz" "${sha256sum}"; then
+download() {
+    file="${1}"
+    url="${2}"
+
+    platform="$(uname)"
+
+    case "${platform}" in
+        SunOS)
+            CURLOPTS="${CURLOPTS:--k}"
+            ;;
+        *)
+            CURLOPTS="${CURLOPTS:-}"
+            ;;
+    esac
+
+    if command -v curl >/dev/null 2>&1; then
+        # shellcheck disable=SC2086
+        curl ${CURLOPTS} -L -o "${file}" "${url}"
+    else
+        wget -O "${file}" "${url}"
+    fi
+}
+
+if [ -f "${top}/sums/v${version}.sum" ]; then
+    sha256sum="$(cat "${top}/sums/v${version}.sum")"
+else
+    sha256sum='0000000000000000000000000000000000000000000000000000000000000000'
+fi
+
+if [ -f "${src}/node-v${version}.tar.gz" ]; then
+    if check_sum "${src}/node-v${version}.tar.gz" "${sha256sum}"; then
         exit 0
     fi
 fi
 
-platform=$(uname)
-
-case "${platform}" in
-    SunOS)
-        CURLOPTS="${CURLOPTS:--k}"
-        ;;
-    *)
-        CURLOPTS="${CURLOPTS:-}"
-        ;;
-esac
-
 mkdir -p "${src}"
-
-# shellcheck disable=SC2086
-curl ${CURLOPTS} -L -o "${src}/node-${version}.tar.gz" "https://github.com/nodejs/node/archive/v${version}.tar.gz"
-
-check_sum "${src}/node-${version}.tar.gz" "${sha256sum}" && exit 0
+download "${src}/node-v${version}.tar.gz" "https://nodejs.org/dist/v${version}/node-v${version}.tar.gz"
+check_sum "${src}/node-v${version}.tar.gz" "${sha256sum}" && exit 0
