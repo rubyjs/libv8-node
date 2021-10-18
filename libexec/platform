@@ -42,11 +42,11 @@ case "${target_platform}" in
         ;;
     x86_64*-darwin*)
         # not for cross compilation
-        RUBY_TARGET_PLATFORM="$(ruby -e 'puts Gem::Platform.local.to_s')"
+        RUBY_TARGET_PLATFORM="$(ruby -e 'puts Gem::Platform.local.to_s.gsub(/-darwin-?\d+/, "-darwin")')"
         ;;
     arm64*-darwin*)
         # not for cross compilation
-        RUBY_TARGET_PLATFORM="$(ruby -e 'puts Gem::Platform.local.to_s')"
+        RUBY_TARGET_PLATFORM="$(ruby -e 'puts Gem::Platform.local.to_s.gsub(/-darwin-?\d+/, "-darwin")')"
         ;;
     *)
         # not for cross compilation
