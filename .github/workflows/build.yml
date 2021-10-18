@@ -382,7 +382,7 @@ jobs:
       - name: Set metadata
         id: set-metadata
         run: |
-            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ruby -e 'puts Gem.platforms.last.to_s' | tee gem_platform
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ruby -e 'puts Gem::Platform.local.tap { |p| RUBY_PLATFORM =~ /musl/ && p.version.nil? and p.instance_eval { @version = "musl" } }.to_s' | tee gem_platform
             echo "::set-output name=GEM_PLATFORM::$(cat gem_platform)"
       - name: Download a single artifact
         uses: actions/download-artifact@v2
