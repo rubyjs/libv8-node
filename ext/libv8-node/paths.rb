@@ -13,10 +13,14 @@ module Libv8::Node
 
     def object_paths
       [Shellwords.escape(File.join(vendored_source_path,
-                                   Gem::Platform.local.to_s,
+                                   platform,
                                    'libv8',
                                    'obj',
                                    "libv8_monolith.#{config['LIBEXT']}"))]
+    end
+
+    def platform
+      Gem::Platform.local.to_s.gsub(/-darwin-?\d+/, '-darwin')
     end
 
     def config

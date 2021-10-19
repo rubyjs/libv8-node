@@ -20,13 +20,17 @@ module Helpers
 end
 
 task :compile, [:platform] => [] do |_, args|
-  local_platform = Gem::Platform.local.to_s
-  target_platform = ENV['RUBY_TARGET_PLATFORM'] || args.to_h[:platform] || Gem::Platform.local.to_s
+  local_platform = Gem::Platform.local
+  target_platform = Gem::Platform.new(ENV['RUBY_TARGET_PLATFORM'] || args.to_h[:platform] || Gem::Platform.local)
+
+  if target_platform.os == 'darwin'
+    target_platform.instance_eval { @version = nil }
+  end
 
   puts "local platform: #{local_platform}"
   puts "target platform: #{target_platform}"
 
-  ENV['RUBY_TARGET_PLATFORM'] = target_platform
+  ENV['RUBY_TARGET_PLATFORM'] = target_platform.to_s
 
   if (libs = Dir["vendor/v8/#{target_platform}/**/*.a"]).any?
     puts "found: #{libs.inspect}"
@@ -39,8 +43,12 @@ task :compile, [:platform] => [] do |_, args|
 end
 
 task :binary, [:platform] => [:compile] do |_, args|
-  local_platform = Gem::Platform.local
-  target_platform = Gem::Platform.new(ENV['RUBY_TARGET_PLATFORM']) || Gem::Platform.new(args.to_h[:platform]) || Gem::Platform.local
+  local_platform = Gem::Platform.local.dup
+  target_platform = Gem::Platform.new(ENV['RUBY_TARGET_PLATFORM'] || args.to_h[:platform] || Gem::Platform.local)
+
+  if target_platform.os == 'darwin'
+    target_platform.instance_eval { @version = nil }
+  end
 
   puts "local platform: #{local_platform}"
   puts "target platform: #{target_platform}"
@@ -68,34 +76,4 @@ task :binary, [:platform] => [:compile] do |_, args|
             end
 
   FileUtils.mv(package, 'pkg')
-end
-
-namespace :binary do
-  task all: :binary do
-    next unless RUBY_PLATFORM =~ /darwin-?(\d+)/
-
-    current = Integer($1)
-
-    Helpers.binary_gemspec # loads NODE_VERSION
-    major, minor = File.read(Dir["src/node-v#{Libv8::Node::NODE_VERSION}/common.gypi"].last).lines.find { |l| l =~ /-mmacosx-version-min=(\d+).(\d+)/ } && [Integer($1), Integer($2)]
-
-    first = if RUBY_PLATFORM =~ /\barm64e?-/
-              20 # arm64 darwin is only available since darwin20
-            elsif major == 10
-              minor + 4 # macos 10.X => darwinY offset, 10.15 is darwin19
-            else
-              minor + 20 # maxos 11.X => darwinY offset, 11.0 is darwin20
-            end
-    max = 20 # current known max to build for
-
-    (first..max).each do |version|
-      next if version == current
-
-      platform = Gem::Platform.local.dup
-      platform.instance_eval { @version = version }
-      puts "> building #{platform}"
-
-      Rake::Task['binary'].execute(Rake::TaskArguments.new([:platform], [platform]))
-    end
-  end
 end

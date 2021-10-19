@@ -115,9 +115,9 @@ jobs:
       - name: Inject V8
         run: |
             ./libexec/inject-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
-      - name: Build binary gems
+      - name: Build binary gem
         run: |
-            bundle exec rake binary:all
+            bundle exec rake binary
       - name: Upload V8
         uses: actions/upload-artifact@v1
         with:
@@ -299,7 +299,7 @@ jobs:
       - name: Set metadata
         id: set-metadata
         run: |
-            ruby -e 'puts Gem.platforms.last.to_s' | tee gem_platform
+            ruby -e 'puts Gem.platforms.last.to_s.gsub(/-darwin-?\d+/, "-darwin")' | tee gem_platform
             echo "::set-output name=GEM_PLATFORM::$(cat gem_platform)"
       - name: Download a single artifact
         uses: actions/download-artifact@v2

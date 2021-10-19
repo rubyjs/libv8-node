@@ -26,6 +26,12 @@ done
 
 cd "${BASEDIR}/out/${BUILDTYPE}"
 
+case "${RUBY_TARGET_PLATFORM}" in
+    *-darwin*)
+        RUBY_TARGET_PLATFORM="$(echo "${RUBY_TARGET_PLATFORM}" | sed -e 's/-darwin[0-9]*/-darwin/')"
+        ;;
+esac
+
 rm -rf "${top}/vendor/v8/${RUBY_TARGET_PLATFORM}"
 # shellcheck disable=SC2043
 for lib in libv8_monolith.a; do
