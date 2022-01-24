@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ['']
   s.email       = ['']
-  s.homepage    = 'https://github.com/sqreen/ruby-libv8-node'
+  s.homepage    = 'https://github.com/rubyjs/libv8-node'
   s.summary     = "Node.JS's V8 JavaScript engine"
   s.description = "Node.JS's V8 JavaScript engine for multiplatform goodness"
   s.license     = 'MIT'
