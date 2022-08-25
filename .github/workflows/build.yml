@@ -330,6 +330,7 @@ jobs:
           - '2.6'
           - '2.7'
           - '3.0'
+          - '3.1'
         platform:
           - amd64
           # arm64
@@ -347,6 +348,9 @@ jobs:
             platform: 'arm64'
             libc: 'gnu'
           - version: '3.0'
+            platform: 'arm64'
+            libc: 'gnu'
+          - version: '3.1'
             platform: 'arm64'
             libc: 'gnu'
     name: Test (linux)
