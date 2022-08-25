@@ -6,7 +6,7 @@ RUN test ! -f /etc/alpine-release || apk add --no-cache build-base bash python2 
 RUN mkdir -p /code
 WORKDIR /code
 
-ARG NODE_VERSION=17.3.1
+ARG NODE_VERSION=17.9.1
 
 COPY sums/v${NODE_VERSION}.sum /code/sums/
 COPY libexec/download-node /code/libexec/
