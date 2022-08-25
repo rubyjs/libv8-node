@@ -259,7 +259,7 @@ jobs:
     name: Test (ruby)
     needs: build-ruby
     runs-on: ubuntu-20.04
-    container: ruby:2.5
+    container: ruby:2.6
     steps:
       - name: Set metadata
         id: set-metadata
@@ -329,7 +329,6 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '2.5'
           - '2.6'
           - '2.7'
           - '3.0'
@@ -343,9 +342,6 @@ jobs:
           - gnu
           - musl
         include:
-          - version: '2.5'
-            platform: 'arm64'
-            libc: 'gnu'
           - version: '2.6'
             platform: 'arm64'
             libc: 'gnu'
