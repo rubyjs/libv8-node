@@ -283,6 +283,7 @@ jobs:
           git clean -f -d -x
           ruby -i -ne '$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"${{ needs.build-ruby.outputs.GEM_VERSION }}\"\n") : print' lib/mini_racer/version.rb
           ruby -i -ne '$_ =~ /spec.required_ruby_version/ ? "" : print' mini_racer.gemspec
+          sed -i~ -e 's/es-MX/fr-FR/g' test/mini_racer_test.rb
           bundle install
           bundle exec rake compile
           bundle exec rake test
@@ -319,6 +320,7 @@ jobs:
           git clean -f -d -x
           ruby -i -ne '$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"${{ needs.build-darwin.outputs.GEM_VERSION }}\"\n") : print' lib/mini_racer/version.rb
           ruby -i -ne '$_ =~ /spec.required_ruby_version/ ? "" : print' mini_racer.gemspec
+          sed -i~ -e 's/es-MX/fr-FR/g' test/mini_racer_test.rb
           bundle install
           bundle exec rake compile
           bundle exec rake test
@@ -403,6 +405,7 @@ jobs:
           git clean -f -d -x
           ruby -i -ne '$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"${{ needs.build-linux.outputs.GEM_VERSION }}\"\n") : print' lib/mini_racer/version.rb
           ruby -i -ne '$_ =~ /spec.required_ruby_version/ ? "" : print' mini_racer.gemspec
+          sed -i~ -e 's/es-MX/fr-FR/g' test/mini_racer_test.rb
           docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle install
           docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle exec rake compile
           docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle exec rake test
