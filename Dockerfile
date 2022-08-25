@@ -1,4 +1,4 @@
-ARG RUBY_VERSION=2.4
+ARG RUBY_VERSION=2.6
 FROM ruby:${RUBY_VERSION}
 
 RUN test ! -f /etc/alpine-release || apk add --no-cache build-base bash python2 python3 git curl tar
