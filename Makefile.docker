@@ -17,8 +17,8 @@ gem: pkg/libv8-node-$(VERSION)-$(CPU)-$(OS).gem
 
 test: test/$(CPU)-$(OS)
 
-test/linux: test/$(CPU)-linux
-test/linux-musl: test/$(CPU)-linux-musl
+test/linux: test/$(subst arm64,aarch64,$(CPU))-linux
+test/linux-musl: test/$(subst arm64,aarch64,$(CPU))-linux-musl
 
 pkg/libv8-node-$(VERSION)-x86_64-linux.gem:
 	docker build --platform linux/amd64 --build-arg RUBY_VERSION=2.4 --build-arg NODE_VERSION=$(NODE_VERSION) --progress plain -t libv8-node:$(VERSION)-gnu .
