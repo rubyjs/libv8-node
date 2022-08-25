@@ -8,11 +8,13 @@ WORKDIR /code
 
 ARG NODE_VERSION=16.10.0
 
+COPY sums/v${NODE_VERSION}.sum /code/sums/
 COPY libexec/download-node /code/libexec/
 RUN ./libexec/download-node ${NODE_VERSION}
 COPY libexec/extract-node /code/libexec/
 COPY patch/* /code/patch/
 RUN ./libexec/extract-node ${NODE_VERSION}
+COPY libexec/platform /code/libexec/
 COPY libexec/build-libv8 /code/libexec/
 RUN ./libexec/build-libv8 ${NODE_VERSION}
 COPY libexec/build-monolith /code/libexec/

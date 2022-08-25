@@ -1,45 +1,47 @@
 PWD := $(shell pwd)
+OS := $(shell uname -s | tr '[A-Z]' '[a-z]')
+CPU := $(shell uname -m)
 VERSION := $(shell ./libexec/metadata version)
 NODE_VERSION := $(shell ./libexec/metadata node_version)
+RUBY_VERSION = $(shell ruby -e 'puts RUBY_VERSION.gsub(/\d+$$/, "0")')
 
-all:
+vars:
+	@echo $(PWD)
+	@echo $(OS) $(CPU)
+	@echo $(VERSION) $(NODE_VERSION)
+	@echo $(RUBY_VERSION)
 
-pkg/libv8-node-$(VERSION)-x86_64-linux.gem:
-	docker build --platform linux/amd64 --build-arg RUBY_VERSION=2.4 --progress plain -t libv8-node:gnu .
-	docker run --platform linux/amd64 --rm -it -v "$(PWD)/pkg":/pkg libv8-node:gnu cp $@ /pkg/
+all: gem test
 
-pkg/libv8-node-$(VERSION)-x86_64-linux-musl.gem:
-	docker build --platform linux/amd64 --build-arg RUBY_VERSION=2.4-alpine --progress plain -t libv8-node:musl .
-	docker run --platform linux/amd64 --rm -it -v "$(PWD)/pkg":/pkg libv8-node:musl cp $@ /pkg/
+build: src/node-v$(NODE_VERSION)/out/Release/node
 
-pkg/libv8-node-$(VERSION)-aarch64-linux.gem:
-	docker build --platform linux/arm64 --build-arg RUBY_VERSION=2.4 --progress plain -t libv8-node:gnu .
-	docker run --platform linux/arm64 --rm -it -v "$(PWD)/pkg":/pkg libv8-node:gnu cp $@ /pkg/
+lib: src/node-v$(NODE_VERSION)/out/Release/libv8_monolith.a
 
-pkg/libv8-node-$(VERSION)-aarch64-linux-musl.gem:
-	docker build --platform linux/arm64 --build-arg RUBY_VERSION=2.4-alpine --progress plain -t libv8-node:musl .
-	docker run --platform linux/arm64 --rm -it -v "$(PWD)/pkg":/pkg libv8-node:musl cp $@ /pkg/
+gem: pkg/libv8-node-$(VERSION)-$(CPU)-$(OS).gem
 
-test/x86_64-linux: pkg/libv8-node-$(VERSION)-x86_64-linux.gem
+test: test/$(CPU)-$(OS)
+
+src/node-v$(NODE_VERSION).tar.gz:
+	./libexec/download-node $(NODE_VERSION)
+
+src/node-v$(NODE_VERSION): src/node-v$(NODE_VERSION).tar.gz
+	./libexec/extract-node $(NODE_VERSION)
+
+src/node-v$(NODE_VERSION)/out/Release/node: src/node-v$(NODE_VERSION)
+	./libexec/build-libv8 $(NODE_VERSION)
+
+src/node-v$(NODE_VERSION)/out/Release/libv8_monolith.a: src/node-v$(NODE_VERSION)/out/Release/node
+	./libexec/build-monolith $(NODE_VERSION)
+
+vendor/v8: src/node-v$(NODE_VERSION)/out/Release/libv8_monolith.a
+	./libexec/inject-libv8 $(NODE_VERSION)
+
+pkg/libv8-node-$(VERSION)-$(CPU)-$(OS).gem: vendor/v8
+	bundle exec rake binary
+
+test/$(CPU)-$(OS): pkg/libv8-node-$(VERSION)-$(CPU)-$(OS).gem
 	test -d test/mini_racer || git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
-	cd test/mini_racer && git fetch origin refs/pull/186/head && git checkout FETCH_HEAD && git reset --hard && git clean -f -d -x
+	cd test/mini_racer && git fetch origin refs/pull/232/head && git checkout FETCH_HEAD && git reset --hard && git clean -f -d -x
 	ruby -i -ne '$$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"$(VERSION)\"\n") : print' test/mini_racer/lib/mini_racer/version.rb
-	docker run --platform linux/amd64 --rm -it -v "$(PWD)/test:/code/test" -w "/code/test/mini_racer" libv8-node:gnu sh -c 'gem install ../../$< && bundle install && bundle exec rake compile && bundle exec rake test'
-
-test/x86_64-linux-musl: pkg/libv8-node-$(VERSION)-x86_64-linux-musl.gem
-	test -d test/mini_racer || git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
-	cd test/mini_racer && git fetch origin refs/pull/186/head && git checkout FETCH_HEAD && git reset --hard && git clean -f -d -x
-	ruby -i -ne '$$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"$(VERSION)\"\n") : print' test/mini_racer/lib/mini_racer/version.rb
-	docker run --platform linux/amd64 --rm -it -v "$(PWD)/test:/code/test" -w "/code/test/mini_racer" libv8-node:musl sh -c 'gem install ../../$< && bundle install && bundle exec rake compile && bundle exec rake test'
-
-test/aarch64-linux: pkg/libv8-node-$(VERSION)-aarch64-linux.gem
-	test -d test/mini_racer || git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
-	cd test/mini_racer && git fetch origin refs/pull/186/head && git checkout FETCH_HEAD && git reset --hard && git clean -f -d -x
-	ruby -i -ne '$$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"$(VERSION)\"\n") : print' test/mini_racer/lib/mini_racer/version.rb
-	docker run --platform linux/arm64 --rm -it -v "$(PWD)/test:/code/test" -w "/code/test/mini_racer" libv8-node:gnu sh -c 'gem install ../../$< && bundle install && bundle exec rake compile && bundle exec rake test'
-
-test/aarch64-linux-musl: pkg/libv8-node-$(VERSION)-aarch64-linux-musl.gem
-	test -d test/mini_racer || git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
-	cd test/mini_racer && git fetch origin refs/pull/186/head && git checkout FETCH_HEAD && git reset --hard && git clean -f -d -x
-	ruby -i -ne '$$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"$(VERSION)\"\n") : print' test/mini_racer/lib/mini_racer/version.rb
-	docker run --platform linux/arm64 --rm -it -v "$(PWD)/test:/code/test" -w "/code/test/mini_racer" libv8-node:musl sh -c 'gem install ../../$< && bundle install && bundle exec rake compile && bundle exec rake test'
+	ruby -i -ne '$$_ =~ /spec.required_ruby_version/ ? "" : print' test/mini_racer/mini_racer.gemspec
+	cd test/mini_racer && env TOP="$(PWD)" GEM_HOME="$(PWD)/test/bundle/ruby/$(RUBY_VERSION)" BUNDLE_PATH="$(PWD)/test/bundle" sh -c 'rm -rf "$${GEM_HOME}" && gem install $${TOP}/$< && bundle install && bundle exec rake compile && bundle exec rake test'
