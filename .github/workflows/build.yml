@@ -256,11 +256,25 @@ jobs:
           name: gem-${{ steps.set-metadata.outputs.GEM_VERSION  }}-${{ steps.platform.outputs.ruby_target_platform }}
           path: pkg
   test-ruby:
-    name: Test (ruby)
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - amd64
+          # other platforms would need emulation, which is way too slow
+        container:
+          - image: ruby:2.6
+            libc: gnu
+          - image: ruby:2.6-alpine
+            libc: musl
+    name: Test (ruby, ${{ matrix.container.libc }})
     needs: build-ruby
     runs-on: ubuntu-20.04
-    container: ruby:2.6
+    container: ${{ matrix.container.image }}
     steps:
+      - name: Install Alpine system dependencies
+        if: ${{ matrix.container.libc == 'musl' }}
+        run: apk add --no-cache build-base linux-headers bash python2 python3 git curl tar
       - name: Set metadata
         id: set-metadata
         run: |
