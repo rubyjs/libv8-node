@@ -77,7 +77,7 @@ jobs:
     name: Build (darwin)
     outputs:
       GEM_VERSION: ${{ steps.set-metadata.outputs.GEM_VERSION }}
-    runs-on: macos-10.15
+    runs-on: macos-12
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -329,7 +329,7 @@ jobs:
           # arm64
     name: Test (darwin)
     needs: build-darwin
-    runs-on: macos-10.15
+    runs-on: macos-12
     steps:
       - name: Set metadata
         id: set-metadata
