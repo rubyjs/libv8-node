@@ -73,11 +73,14 @@ jobs:
       matrix:
         platform:
           - x86_64
-          # arm64
+          - arm64
     name: Build (darwin)
     outputs:
       GEM_VERSION: ${{ steps.set-metadata.outputs.GEM_VERSION }}
     runs-on: macos-12
+    env:
+      TARGET_PLATFORM: ${{ matrix.platform }}-darwin
+      RUBY_TARGET_PLATFORM: ${{ matrix.platform }}-darwin
     steps:
       - name: Checkout
         uses: actions/checkout@v2
