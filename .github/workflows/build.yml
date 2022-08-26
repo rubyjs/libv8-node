@@ -264,10 +264,30 @@ jobs:
           # other platforms would need emulation, which is way too slow
         container:
           - image: ruby:2.6
+            version: '2.6'
             libc: gnu
           - image: ruby:2.6-alpine
+            version: '2.6'
             libc: musl
-    name: Test (ruby, ${{ matrix.container.libc }})
+          - image: ruby:2.7
+            version: '2.7'
+            libc: gnu
+          - image: ruby:2.7-alpine
+            version: '2.7'
+            libc: musl
+          - image: ruby:3.0
+            version: '3.0'
+            libc: gnu
+          - image: ruby:3.0-alpine
+            version: '3.0'
+            libc: musl
+          - image: ruby:3.1
+            version: '3.1'
+            libc: gnu
+          - image: ruby:3.1-alpine
+            version: '3.1'
+            libc: musl
+    name: Test (ruby) (${{ matrix.container.version }}, ${{ matrix.platform }}, ${{ matrix.container.libc }})
     needs: build-ruby
     runs-on: ubuntu-20.04
     container: ${{ matrix.container.image }}
