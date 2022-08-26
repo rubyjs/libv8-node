@@ -102,6 +102,18 @@ fi
 #         ;;
 # esac
 
+if command -v ccache >/dev/null 2>&1; then
+    if [ -n "${CC:-}" ]; then
+        CC="ccache ${CC}"
+        CXX="ccache ${CXX}"
+    fi
+
+    if [ -n "${CC_host:-}" ]; then
+        CC_host="ccache ${CC_host}"
+        CXX_host="ccache ${CXX_host}"
+    fi
+fi
+
 cat <<EOF
 export CC='${CC}'
 export CXX='${CXX}'
