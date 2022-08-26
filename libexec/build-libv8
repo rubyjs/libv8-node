@@ -29,8 +29,8 @@ eval "$("${libexec}/platform")"
 echo "configure: ${configure_flags}"
 echo "compilers: CC='${CC}' CXX='${CXX}' CC_host='${CC_host:-}' CXX_host='${CXX_host:-}'"
 
-"${CC}" -v
-"${CXX}" -v
+${CC} -v
+${CXX} -v
 
 # shellcheck disable=SC2086
 "${PYTHON}" configure ${configure_flags}

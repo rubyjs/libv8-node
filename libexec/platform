@@ -16,7 +16,7 @@ fi
 
 STRIP="${STRIP:-strip}"
 
-triple=$("${CC}" -dumpmachine)
+triple=$(${CC} -dumpmachine)
 host_platform="${triple}"
 target_platform="${TARGET_PLATFORM:-${1:-}}"
 target_platform="${target_platform:-${host_platform}}"
@@ -42,14 +42,17 @@ case "${target_platform}" in
         ;;
     x86_64*-darwin*)
         # not for cross compilation
-        RUBY_TARGET_PLATFORM="$(ruby -e 'puts Gem::Platform.local.to_s.gsub(/-darwin-?\d+/, "-darwin")')"
+        RUBY_TARGET_PLATFORM='x86_64-darwin'
         ;;
     arm64*-darwin*)
         # not for cross compilation
-        RUBY_TARGET_PLATFORM="$(ruby -e 'puts Gem::Platform.local.to_s.gsub(/-darwin-?\d+/, "-darwin")')"
+        RUBY_TARGET_PLATFORM='arm64-darwin'
         ;;
     *)
-        # not for cross compilation
+        if [ "${host_platform}" != "${target_platform}" ]; then
+            echo 'cross compilation not supported'
+            exit 1
+        fi
         RUBY_TARGET_PLATFORM="$(ruby -e 'puts Gem::Platform.local.to_s')"
         ;;
 esac
@@ -80,6 +83,30 @@ if [ "${host_platform}" != "${target_platform}" ]; then
             CXX_host='g++ -m32'
             STRIP='arm-linux-gnueabihf-strip'
             configure_flags='--dest-cpu=arm --cross-compiling --dest-os=linux --with-arm-float-abi=hard --with-arm-fpu=neon'
+            ;;
+        x86_64-*linux*)
+            CC='x86_64-linux-gnu-gcc'
+            CXX='x86_64-linux-gnu-g++'
+            CC_host='gcc'
+            CXX_host='g++'
+            STRIP='x86_64-linux-gnu-strip'
+            configure_flags='--dest-cpu=x86_64 --cross-compiling --dest-os=linux'
+            ;;
+        x86_64*-darwin*)
+            CC='clang -arch x86_64'
+            CXX='clang++ -arch x86_64'
+            CC_host='clang'
+            CXX_host='clang++'
+            STRIP='strip'
+            configure_flags='--dest-cpu=x86_64 --cross-compiling --dest-os=mac'
+            ;;
+        arm64*-darwin*)
+            CC='clang -arch arm64'
+            CXX='clang++ -arch arm64'
+            CC_host='clang'
+            CXX_host='clang++'
+            STRIP='strip'
+            configure_flags='--dest-cpu=arm64 --cross-compiling --dest-os=mac'
             ;;
         *)
             configure_flags=''
