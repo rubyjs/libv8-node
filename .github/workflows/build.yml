@@ -77,7 +77,7 @@ jobs:
     name: Build (darwin)
     outputs:
       GEM_VERSION: ${{ steps.set-metadata.outputs.GEM_VERSION }}
-    runs-on: macos-12
+    runs-on: macos-11
     env:
       TARGET_PLATFORM: ${{ matrix.platform }}-darwin
       RUBY_TARGET_PLATFORM: ${{ matrix.platform }}-darwin
@@ -332,7 +332,7 @@ jobs:
           # arm64
     name: Test (darwin)
     needs: build-darwin
-    runs-on: macos-12
+    runs-on: macos-11
     steps:
       - name: Set metadata
         id: set-metadata
