@@ -130,12 +130,12 @@ fi
 # esac
 
 if command -v ccache >/dev/null 2>&1; then
-    if [ -n "${CC:-}" ]; then
+    if [ -n "${CC:-}" ] && [ "${CC}" = "${CC#ccache}" ]; then
         CC="ccache ${CC}"
         CXX="ccache ${CXX}"
     fi
 
-    if [ -n "${CC_host:-}" ]; then
+    if [ -n "${CC_host:-}" ] && [ "${CC_host}" = "${CC_host#ccache}" ]; then
         CC_host="ccache ${CC_host}"
         CXX_host="ccache ${CXX_host}"
     fi
