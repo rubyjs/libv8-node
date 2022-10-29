@@ -20,7 +20,7 @@ module Libv8::Node
     end
 
     def platform
-      Gem::Platform.local.to_s.gsub(/-darwin-?\d+/, '-darwin')
+      Gem::Platform.local.to_s.sub(/-darwin\K-?\d+|-linux\K-gnu\z/, '')
     end
 
     def config
