@@ -27,7 +27,8 @@ case "${platform}" in
         /usr/bin/find . -path "./torque_*/**/*.o" -or -path "./v8*/**/*.o" -or -path "./icu*/**/*.o" | sort | uniq | xargs /usr/bin/ar -cq "${LIBV8_MONOLITH}"
         ;;
     "Linux")
-        find . -path "./torque_*/**/*.o" -or -path "./v8*/**/*.o" -or -path "./icu*/**/*.o" | sort | uniq | xargs ar -cq "${LIBV8_MONOLITH}"
+        find . -path "./torque_*/**/*.o" -or -path "./v8*/**/*.o" -or -path "./icu*/**/*.o" | sort | uniq | xargs ar -cqS "${LIBV8_MONOLITH}"
+        ranlib "${LIBV8_MONOLITH}"
         ;;
     *)
       echo "Unsupported platform: ${platform}"
