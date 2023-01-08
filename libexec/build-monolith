@@ -33,9 +33,8 @@ case "${platform}" in
         /usr/bin/ranlib "${LIBV8_MONOLITH}"
         ;;
     "Linux")
-        find . -path "./torque_*/**/*.o" -or -path "./v8*/**/*.o" -or -path "./icu*/**/*.o" | sort | uniq | while read -r obj; do
-            ar -cq "${LIBV8_MONOLITH}" "${obj}"
-        done
+        find . -path "./torque_*/**/*.o" -or -path "./v8*/**/*.o" -or -path "./icu*/**/*.o" | sort | uniq | xargs ar -cqS "${LIBV8_MONOLITH}"
+        ranlib "${LIBV8_MONOLITH}"
         ;;
     *)
       echo "Unsupported platform: ${platform}"
