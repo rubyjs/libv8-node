@@ -21,19 +21,19 @@ platform=$(uname)
 rm -f "${LIBV8_MONOLITH}"
 case "${platform}" in
     "SunOS")
-        /usr/xpg4/bin/find . -path "./torque_*/**/*.o" -or -path "./v8*/**/*.o" -or -path "./icu*/**/*.o" | sort | uniq | while read -r obj; do
+        /usr/xpg4/bin/find . '(' '!' -path './icutools/deps/icu-small/source/stubdata/stubdata.o' ')' -and '(' -path "./torque_*/**/*.o" -or -path "./v8*/**/*.o" -or -path "./icu*/**/*.o" ')' | sort | uniq | while read -r obj; do
             ar cqS "${LIBV8_MONOLITH}" "${obj}"
         done
         ranlib "${LIBV8_MONOLITH}"
         ;;
     "Darwin")
-        /usr/bin/find . -path "./torque_*/**/*.o" -or -path "./v8*/**/*.o" -or -path "./icu*/**/*.o" | sort | uniq | while read -r obj; do
+        /usr/bin/find . '(' '!' -path './icutools/deps/icu-small/source/stubdata/stubdata.o' ')' -and '(' -path "./torque_*/**/*.o" -or -path "./v8*/**/*.o" -or -path "./icu*/**/*.o" ')' | sort | uniq | while read -r obj; do
             /usr/bin/ar -cqS "${LIBV8_MONOLITH}" "${obj}"
         done
         /usr/bin/ranlib "${LIBV8_MONOLITH}"
         ;;
     "Linux")
-        find . -path "./torque_*/**/*.o" -or -path "./v8*/**/*.o" -or -path "./icu*/**/*.o" | sort | uniq | xargs ar -cqS "${LIBV8_MONOLITH}"
+        find . '(' '!' -path './icutools/deps/icu-small/source/stubdata/stubdata.o' ')' -and '(' -path "./torque_*/**/*.o" -or -path "./v8*/**/*.o" -or -path "./icu*/**/*.o" ')' | sort | uniq | xargs ar -cqS "${LIBV8_MONOLITH}"
         ranlib "${LIBV8_MONOLITH}"
         ;;
     *)
