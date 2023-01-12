@@ -25,6 +25,16 @@ jobs:
        run: apt-get update && apt-get install -y shellcheck
      - name: Shellcheck
        run: shellcheck libexec/*
+  compile-truffleruby:
+    name: Compile on truffleruby
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: truffleruby
+          bundler-cache: true
+      - run: bundle exec rake compile
   build-ruby:
     name: Build (ruby)
     outputs:
