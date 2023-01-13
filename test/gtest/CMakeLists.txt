@@ -24,8 +24,13 @@ add_executable(
 target_link_libraries(
   c_v8_tests
   GTest::gtest_main
-  ${CMAKE_SOURCE_DIR}/../../vendor/v8/x86_64-darwin/libv8/obj/libv8_monolith.a
 )
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  target_link_libraries(c_v8_tests ${CMAKE_SOURCE_DIR}/../../vendor/v8/x86_64-darwin/libv8/obj/libv8_monolith.a)
+else()
+  target_link_libraries(c_v8_tests ${CMAKE_SOURCE_DIR}/../../vendor/v8/x86_64-linux/libv8/obj/libv8_monolith.a)
+endif()
 
 include(GoogleTest)
 gtest_discover_tests(c_v8_tests)
