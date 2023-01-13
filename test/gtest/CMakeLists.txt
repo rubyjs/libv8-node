@@ -18,14 +18,14 @@ enable_testing()
 include_directories(${CMAKE_SOURCE_DIR}/../../vendor/v8/include/)
 
 add_executable(
-  hello_test
-  hello_test.cc
+  c_v8_tests
+  c_v8_tests.cc
 )
 target_link_libraries(
-  hello_test
+  c_v8_tests
   GTest::gtest_main
   ${CMAKE_SOURCE_DIR}/../../vendor/v8/x86_64-darwin/libv8/obj/libv8_monolith.a
 )
 
 include(GoogleTest)
-gtest_discover_tests(hello_test)
+gtest_discover_tests(c_v8_tests)
