@@ -15,6 +15,8 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
+include_directories(${CMAKE_SOURCE_DIR}/../../vendor/v8/include/)
+
 add_executable(
   hello_test
   hello_test.cc
@@ -22,6 +24,7 @@ add_executable(
 target_link_libraries(
   hello_test
   GTest::gtest_main
+  ${CMAKE_SOURCE_DIR}/../../vendor/v8/x86_64-darwin/libv8/obj/libv8_monolith.a
 )
 
 include(GoogleTest)
