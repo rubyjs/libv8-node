@@ -32,5 +32,8 @@ else()
   target_link_libraries(c_v8_tests ${CMAKE_SOURCE_DIR}/../../vendor/v8/x86_64-linux/libv8/obj/libv8_monolith.a)
 endif()
 
+# This has to be after the v8 monolith for some build setups.
+target_link_libraries(c_v8_tests dl)
+
 include(GoogleTest)
 gtest_discover_tests(c_v8_tests)
