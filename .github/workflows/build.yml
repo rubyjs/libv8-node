@@ -210,11 +210,15 @@ jobs:
           echo "::set-output name=id::$(cat container_id)"
       - name: Install Alpine system dependencies
         if: ${{ matrix.libc == 'musl' }}
-        run: docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apk add --no-cache build-base linux-headers bash python3 git curl tar
+        run: docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apk add --no-cache build-base linux-headers bash python3 git curl tar cmake
+      - name: Install Debian system dependencies
+        if: ${{ matrix.libc == 'gnu' }}
+        run: |
+          docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apt-get update
+          docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apt-get install -y cmake
       - name: Install Debian cross-compiler
         if: ${{ matrix.libc == 'gnu' && matrix.platform != 'amd64' }}
         run: |
-          docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apt-get update
           docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apt-get install -y binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
       - name: Checkout
         uses: actions/checkout@v2
