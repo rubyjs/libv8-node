@@ -118,6 +118,13 @@ jobs:
       - name: Inject V8
         run: |
             ./libexec/inject-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
+      - name: Test V8 in C++
+        run: |
+            cd test/gtest
+            cmake -S . -B build
+            cd build
+            cmake --build .
+            ./c_v8_tests
       - name: Build binary gem
         run: |
             bundle exec rake binary
@@ -245,6 +252,9 @@ jobs:
       - name: Inject V8
         run: |
             docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ./libexec/inject-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
+      - name: Test V8 in C++
+        run: |
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bash -c "cd test/gtest && cmake -S . -B build && cd build && cmake --build . && ctest"
       - name: Build binary gem
         run: |
             docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle exec rake binary[${{ steps.platform.outputs.ruby_target_platform }}]
