@@ -21,6 +21,9 @@ gem: pkg/libv8-node-$(VERSION)-$(CPU)-$(OS).gem
 
 test: test/$(CPU)-$(OS)
 
+ctest: vendor/v8
+	cd test/gtest && cmake -S . -B build && cd build && cmake --build . && ctest
+
 src/node-v$(NODE_VERSION).tar.gz:
 	./libexec/download-node $(NODE_VERSION)
 
