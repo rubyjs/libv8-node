@@ -26,11 +26,23 @@ target_link_libraries(
   GTest::gtest_main
 )
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  target_link_libraries(c_v8_tests ${CMAKE_SOURCE_DIR}/../../vendor/v8/x86_64-darwin/libv8/obj/libv8_monolith.a)
-else()
-  target_link_libraries(c_v8_tests ${CMAKE_SOURCE_DIR}/../../vendor/v8/x86_64-linux/libv8/obj/libv8_monolith.a)
+string(TOLOWER ${CMAKE_SYSTEM_NAME} system_name)
+string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} system_arch)
+
+set(vendor_arch "${system_arch}-${system_name}")
+
+if(${system_name} STREQUAL "linux")
+	try_compile(is_glibc ${CMAKE_BINARY_DIR}/check_glibc ${CMAKE_SOURCE_DIR}/check_glibc.c)
+	if(NOT is_glibc)
+		# assume non-glibc is musl-libc
+		string(APPEND vendor_arch "-musl")
+	endif()
 endif()
+
+message(STATUS "Detected vendor architecture directory: ${vendor_arch}")
+
+# TODO?: Detect and support ruby-arch builds?
+target_link_libraries(c_v8_tests ${CMAKE_SOURCE_DIR}/../../vendor/v8/${vendor_arch}/libv8/obj/libv8_monolith.a)
 
 # This has to be after the v8 monolith for some build setups.
 target_link_libraries(c_v8_tests dl)
