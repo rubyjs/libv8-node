@@ -198,10 +198,10 @@ jobs:
         run: |
           case ${{ matrix.libc }} in
             gnu)
-              echo 'ruby:2.4'
+              echo 'ruby:2.6'
               ;;
             musl)
-              echo 'ruby:2.4-alpine'
+              echo 'ruby:2.6-alpine'
               ;;
           esac | tee container_image
           echo "::set-output name=image::$(cat container_image)"
