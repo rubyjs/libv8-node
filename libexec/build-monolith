@@ -33,8 +33,8 @@ case "${platform}" in
         /usr/bin/ranlib "${LIBV8_MONOLITH}"
         ;;
     "Linux")
-        find . '(' '!' -path './icutools/deps/icu-small/source/stubdata/stubdata.o' ')' -and '(' -path "./torque_*/**/*.o" -or -path "./v8*/**/*.o" -or -path "./icu*/**/*.o" ')' | sort | uniq | xargs ar -cqS "${LIBV8_MONOLITH}"
-        ranlib "${LIBV8_MONOLITH}"
+        find . '(' '!' -path './icutools/deps/icu-small/source/stubdata/stubdata.o' ')' -and '(' -path "./torque_*/**/*.o" -or -path "./v8*/**/*.o" -or -path "./icu*/**/*.o" ')' | sort | uniq | xargs ar -cqSP "${LIBV8_MONOLITH}"
+        ar -sP "${LIBV8_MONOLITH}"
         ;;
     *)
       echo "Unsupported platform: ${platform}"
