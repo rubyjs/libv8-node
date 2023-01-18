@@ -38,5 +38,13 @@ ${CXX} -v
 make BUILDTYPE="${BUILDTYPE}" config.gypi
 make BUILDTYPE="${BUILDTYPE}" "out/Makefile"
 
+# workaround for node specifying `-msign-return-address=all` in ALL `CFLAGS` for aarch64 builds
+# (if the host isn't also aarch64, this flag causes a compiler error)
+
+# shellcheck disable=SC2154 # these variables are defined by `eval`ing the output of the platform script above
+if [ "$host_platform" != "$target_platform" ] && [ "${target_platform%%-*}" = "aarch64"  ]; then
+	find . -iname "*.host.mk" -exec sed -i '/-msign-return-address/d' {} ';'
+fi
+
 export PATH="${PWD}/out/tools/bin:${PATH}"
 make -j"${NJOBS}" -C out BUILDTYPE="${BUILDTYPE}" V=0
