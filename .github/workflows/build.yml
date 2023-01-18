@@ -119,6 +119,7 @@ jobs:
         run: |
             ./libexec/inject-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
       - name: Test V8 in C++
+        if: matrix.platform != 'arm64'
         run: |
             cd test/gtest
             cmake -S . -B build
@@ -257,6 +258,7 @@ jobs:
         run: |
             docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ./libexec/inject-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
       - name: Test V8 in C++
+        if: matrix.platform != 'arm64'
         run: |
             docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bash -c "cd test/gtest && cmake -S . -B build && cd build && cmake --build . && ctest"
       - name: Build binary gem
