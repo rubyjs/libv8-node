@@ -6,7 +6,7 @@ jobs:
   rubocop:
     name: Lint (Rubocop)
     runs-on: ubuntu-20.04
-    container: ruby:2.6
+    container: ruby:2.7
     steps:
      - name: Checkout
        uses: actions/checkout@v2
@@ -30,7 +30,7 @@ jobs:
     outputs:
       GEM_VERSION: ${{ steps.set-metadata.outputs.GEM_VERSION }}
     runs-on: ubuntu-20.04
-    container: ruby:2.6
+    container: ruby:2.7
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -199,10 +199,10 @@ jobs:
         run: |
           case ${{ matrix.libc }} in
             gnu)
-              echo 'ruby:2.6'
+              echo 'ruby:2.7'
               ;;
             musl)
-              echo 'ruby:2.6-alpine'
+              echo 'ruby:2.7-alpine'
               ;;
           esac | tee container_image
           echo "::set-output name=image::$(cat container_image)"
@@ -282,12 +282,6 @@ jobs:
           - amd64
           # other platforms would need emulation, which is way too slow
         container:
-          - image: ruby:2.6
-            version: '2.6'
-            libc: gnu
-          - image: ruby:2.6-alpine
-            version: '2.6'
-            libc: musl
           - image: ruby:2.7
             version: '2.7'
             libc: gnu
@@ -380,7 +374,6 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '2.6'
           - '2.7'
           - '3.0'
           - '3.1'
@@ -394,9 +387,6 @@ jobs:
           - gnu
           - musl
         include:
-          - version: '2.6'
-            platform: 'arm64'
-            libc: 'gnu'
           - version: '2.7'
             platform: 'arm64'
             libc: 'gnu'
