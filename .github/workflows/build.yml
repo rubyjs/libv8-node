@@ -322,6 +322,7 @@ jobs:
         run: gem install --verbose pkg/libv8-node-${{ needs.build-ruby.outputs.GEM_VERSION }}.gem
       - name: Test with mini_racer
         run: |
+          export BUNDLE_FORCE_RUBY_PLATFORM=y
           git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
           cd test/mini_racer
           git fetch origin v0.6.3
