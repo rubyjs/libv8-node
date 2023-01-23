@@ -17,12 +17,6 @@ BUILDTYPE="${BUILDTYPE:-Release}"
 
 cd "${src}/node-v${version}"
 
-if command -v python3 >/dev/null 2>&1; then
-    PYTHON="${PYTHON:-python3}"
-else
-    PYTHON="${PYTHON:-python2}"
-fi
-
 configure_flags='--openssl-no-asm --without-npm --shared --with-intl=full-icu'
 eval "$("${libexec}/platform")"
 
@@ -33,7 +27,7 @@ ${CC} -v
 ${CXX} -v
 
 # shellcheck disable=SC2086
-"${PYTHON}" configure ${configure_flags}
+./configure ${configure_flags}
 
 make BUILDTYPE="${BUILDTYPE}" config.gypi
 make BUILDTYPE="${BUILDTYPE}" "out/Makefile"
