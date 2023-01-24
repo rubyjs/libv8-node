@@ -3,6 +3,8 @@ FROM ruby:${RUBY_VERSION}
 
 RUN test ! -f /etc/alpine-release || apk add --no-cache build-base bash python2 python3 git curl tar
 
+RUN gem update --system 3.3.26 && gem install bundler -v '~> 2.3.26'
+
 RUN mkdir -p /code
 WORKDIR /code
 

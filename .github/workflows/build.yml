@@ -32,6 +32,10 @@ jobs:
     runs-on: ubuntu-20.04
     container: ruby:2.7
     steps:
+      - name: Update Rubygems and Bundler
+        run: |
+          gem update --system 3.3.26
+          gem install bundler -v '~> 2.3.26'
       - name: Checkout
         uses: actions/checkout@v2
       - name: Bundle
@@ -221,6 +225,10 @@ jobs:
         if: ${{ matrix.libc == 'gnu' && matrix.platform != 'amd64' }}
         run: |
           docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apt-get install -y binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+      - name: Update Rubygems and Bundler
+        run: |
+          docker exec -w "${PWD}" ${{ steps.container.outputs.id }} gem update --system 3.3.26
+          docker exec -w "${PWD}" ${{ steps.container.outputs.id }} gem install bundler -v '~> 2.3.26'
       - name: Checkout
         uses: actions/checkout@v2
       - name: Bundle
@@ -308,6 +316,10 @@ jobs:
       - name: Install Alpine system dependencies
         if: ${{ matrix.container.libc == 'musl' }}
         run: apk add --no-cache build-base linux-headers bash python3 git curl tar
+      - name: Update Rubygems and Bundler
+        run: |
+          gem update --system 3.3.26
+          gem install bundler -v '~> 2.3.26'
       - name: Set metadata
         id: set-metadata
         run: |
@@ -425,6 +437,10 @@ jobs:
       - name: Install Alpine system dependencies
         if: ${{ matrix.libc == 'musl' }}
         run: docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apk add --no-cache build-base git libstdc++
+      - name: Update Rubygems and Bundler
+        run: |
+          docker exec -w "${PWD}" ${{ steps.container.outputs.id }} gem update --system 3.3.26
+          docker exec -w "${PWD}" ${{ steps.container.outputs.id }} gem install bundler -v '~> 2.3.26'
       - name: Set metadata
         id: set-metadata
         run: |
