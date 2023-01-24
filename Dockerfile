@@ -5,6 +5,8 @@ RUN test ! -f /etc/alpine-release || apk add --no-cache build-base bash python3 
 RUN test -f /etc/alpine-release || (apt-get update && apt-get install -y ccache)
 ENV CCACHE_DIR=/ccache
 
+RUN gem update --system 3.3.26 && gem install bundler -v '~> 2.3.26'
+
 RUN mkdir -p /code
 WORKDIR /code
 
