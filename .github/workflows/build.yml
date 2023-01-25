@@ -318,6 +318,12 @@ jobs:
           - image: ruby:3.1-alpine
             version: '3.1'
             libc: musl
+          - image: ruby:3.2
+            version: '3.2'
+            libc: gnu
+          - image: ruby:3.2-alpine
+            version: '3.2'
+            libc: musl
     name: Test (ruby) (${{ matrix.container.version }}, ${{ matrix.platform }}, ${{ matrix.container.libc }})
     needs: build-ruby
     runs-on: ubuntu-20.04
@@ -400,6 +406,7 @@ jobs:
           - '2.7'
           - '3.0'
           - '3.1'
+          - '3.2'
         platform:
           - amd64
           # arm64
@@ -417,6 +424,9 @@ jobs:
             platform: 'arm64'
             libc: 'gnu'
           - version: '3.1'
+            platform: 'arm64'
+            libc: 'gnu'
+          - version: '3.2'
             platform: 'arm64'
             libc: 'gnu'
     name: Test (linux)
