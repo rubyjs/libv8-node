@@ -1,4 +1,4 @@
-$LOAD_PATH.unshift File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift File.expand_path('lib', __dir__)
 require 'libv8/node/version'
 
 Gem::Specification.new do |s|
@@ -23,5 +23,5 @@ Gem::Specification.new do |s|
   s.require_paths = ['lib', 'ext']
 
   s.add_development_dependency 'rake', '~> 12'
-  s.add_development_dependency 'rubocop', '~> 0.50.0'
+  s.add_development_dependency 'rubocop', '~> 1.44.0'
 end

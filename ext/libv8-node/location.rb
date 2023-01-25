@@ -45,7 +45,7 @@ module Libv8::Node
       def verify_installation!
         include_paths = Libv8::Node::Paths.include_paths
 
-        unless include_paths.detect { |p| Pathname(p).join('v8.h').exist? }
+        unless include_paths.detect { |p| Pathname(p).join('v8.h').exist? } # rubocop:disable Style/IfUnlessModifier
           raise(HeaderNotFound, "Unable to locate 'v8.h' in the libv8 header paths: #{include_paths.inspect}")
         end
 

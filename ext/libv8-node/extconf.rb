@@ -2,8 +2,8 @@
 
 require 'mkmf'
 
-if RUBY_ENGINE == "truffleruby"
-  File.write("Makefile", dummy_makefile($srcdir).join(""))
+if RUBY_ENGINE == 'truffleruby'
+  File.write('Makefile', dummy_makefile($srcdir).join('')) # rubocop:disable Style/GlobalVars
   return
 end
 
