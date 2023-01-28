@@ -15,6 +15,14 @@ elif command -v cc >/dev/null 2>&1; then
 fi
 
 STRIP="${STRIP:-strip}"
+AR="${AR:-ar}"
+AREXTRACTFLAGS="${AREXTRACTFLAGS:--x}"
+ARLISTFLAGS="${ARLISTFLAGS:--t}"
+ARCOLLECTFLAGS="${ARCOLLECTFLAGS:-cqS}"
+# this is the command to build the symbol table in an ar archive.
+ARBUILDSYMBOLS="${ARBUILDSYMBOLS:-ranlib}"
+FIND="${FIND:-find}"
+STRIP_NEEDS_EXTRACT="${STRIP_NEEDS_EXTRACT:-n}"
 
 triple=$(${CC} -dumpmachine)
 host_platform="${triple}"
@@ -62,6 +70,11 @@ case "${host_platform}" in
         CC="${CC:-/opt/local/gcc7/bin/gcc}"
         CXX="${CXX:-/opt/local/gcc7/bin/g++}"
         STRIP="gstrip"
+        ;;
+    *linux*)
+        STRIP_NEEDS_EXTRACT="y"
+        ARCOLLECTFLAGS="-cqSP"
+        ARBUILDSYMBOLS="${AR} -sP"
         ;;
 esac
 
@@ -146,6 +159,14 @@ export CC='${CC}'
 export CXX='${CXX}'
 host_platform='${host_platform}'
 target_platform='${target_platform}'
+STRIP='$STRIP'
+AR='$AR'
+AREXTRACTFLAGS='$AREXTRACTFLAGS'
+ARLISTFLAGS='$ARLISTFLAGS'
+ARCOLLECTFLAGS='$ARCOLLECTFLAGS'
+ARBUILDSYMBOLS='$ARBUILDSYMBOLS'
+FIND='$FIND'
+STRIP_NEEDS_EXTRACT='$STRIP_NEEDS_EXTRACT'
 EOF
 
 if [ -n "${CC_host:-}" ]; then cat <<EOF; fi

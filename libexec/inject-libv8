@@ -39,8 +39,35 @@ for lib in libv8_monolith.a; do
     mkdir -p "${dir}"
     rm -f "${dir}/${lib}"
 
-    echo "${BASEDIR}/out/${BUILDTYPE}/${lib} -> ${dir}/${lib}"
-    "${STRIP}" -S -x -o "${dir}/${lib}" "${lib}"
+    if [ "$STRIP_NEEDS_EXTRACT" = "y" ]; then
+        # manual extract/strip objects/build archive sequence
+        # because `strip` can't deal with these
+        # (presumably due to that folder issue mentioned below)
+        (
+            tmpdir="$(mktemp -d)"
+            trap 'rm -r "$tmpdir"' EXIT
+            mkdir "$tmpdir/stage"
+            cd "$tmpdir/stage"
+
+            # create folders named in `ar` archive (`ar -x` fails to create these)
+            "$AR" "$ARLISTFLAGS" "$BASEDIR/out/$BUILDTYPE/$lib" | while read -r path; do
+              dirname "$path"
+            done | uniq | xargs mkdir -p
+            "$AR" "$AREXTRACTFLAGS" "$BASEDIR/out/${BUILDTYPE}/$lib"
+
+            # strip all objects
+            "$FIND" -type f -exec "$STRIP" -Sx {} +
+
+            # rebuild the archive
+            "$FIND" -type f -exec "$AR" "$ARCOLLECTFLAGS" "../$lib" {} +
+            $ARBUILDSYMBOLS "../$lib"
+            mv "../$lib" "$dir/$lib"
+        )
+        echo "${BASEDIR}/out/${BUILDTYPE}/${lib} -> ${dir}/${lib}"
+    else
+        echo "${BASEDIR}/out/${BUILDTYPE}/${lib} -> ${dir}/${lib}"
+        "${STRIP}" -S -x -o "${dir}/${lib}" "${lib}"
+    fi
 done
 
 mkdir -p "${top}/ext/libv8-node"

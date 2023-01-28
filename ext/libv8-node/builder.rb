@@ -1,4 +1,4 @@
-unless $LOAD_PATH.include?(File.expand_path('../../lib', __dir__))
+unless $LOAD_PATH.include?(File.expand_path('../../lib', __dir__)) # rubocop:disable Style/IfUnlessModifier
   $LOAD_PATH.unshift(File.expand_path('../../lib', __dir__))
 end
 require 'libv8/node/version'
