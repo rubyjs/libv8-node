@@ -23,9 +23,7 @@ task :compile, [:platform] => [] do |_, args|
   local_platform = Gem::Platform.local
   target_platform = Gem::Platform.new(ENV['RUBY_TARGET_PLATFORM'] || args.to_h[:platform] || Gem::Platform.local)
 
-  if target_platform.os == 'darwin'
-    target_platform.instance_eval { @version = nil }
-  end
+  target_platform.instance_eval { @version = nil } if target_platform.os == 'darwin'
 
   puts "local platform: #{local_platform}"
   puts "target platform: #{target_platform}"
@@ -46,9 +44,7 @@ task :binary, [:platform] => [:compile] do |_, args|
   local_platform = Gem::Platform.local.dup
   target_platform = Gem::Platform.new(ENV['RUBY_TARGET_PLATFORM'] || args.to_h[:platform] || Gem::Platform.local)
 
-  if target_platform.os == 'darwin'
-    target_platform.instance_eval { @version = nil }
-  end
+  target_platform.instance_eval { @version = nil } if target_platform.os == 'darwin'
 
   puts "local platform: #{local_platform}"
   puts "target platform: #{target_platform}"

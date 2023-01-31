@@ -6,7 +6,7 @@ jobs:
   rubocop:
     name: Lint (Rubocop)
     runs-on: ubuntu-20.04
-    container: ruby:2.6
+    container: ruby:2.7
     steps:
      - name: Checkout
        uses: actions/checkout@v2
@@ -30,8 +30,12 @@ jobs:
     outputs:
       GEM_VERSION: ${{ steps.set-metadata.outputs.GEM_VERSION }}
     runs-on: ubuntu-20.04
-    container: ruby:2.6
+    container: ruby:2.7
     steps:
+      - name: Update Rubygems and Bundler
+        run: |
+          gem update --system 3.3.26
+          gem install bundler -v '~> 2.3.26'
       - name: Checkout
         uses: actions/checkout@v2
       - name: Bundle
@@ -118,6 +122,14 @@ jobs:
       - name: Inject V8
         run: |
             ./libexec/inject-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
+      - name: Test V8 in C++
+        if: matrix.platform != 'arm64'
+        run: |
+            cd test/gtest
+            cmake -S . -B build
+            cd build
+            cmake --build .
+            ./c_v8_tests
       - name: Build binary gem
         run: |
             bundle exec rake binary
@@ -191,10 +203,10 @@ jobs:
         run: |
           case ${{ matrix.libc }} in
             gnu)
-              echo 'ruby:2.6'
+              echo 'ruby:2.7'
               ;;
             musl)
-              echo 'ruby:2.6-alpine'
+              echo 'ruby:2.7-alpine'
               ;;
           esac | tee container_image
           echo "::set-output name=image::$(cat container_image)"
@@ -203,12 +215,20 @@ jobs:
           echo "::set-output name=id::$(cat container_id)"
       - name: Install Alpine system dependencies
         if: ${{ matrix.libc == 'musl' }}
-        run: docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apk add --no-cache build-base linux-headers bash python3 git curl tar
+        run: docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apk add --no-cache build-base linux-headers bash python3 git curl tar cmake
+      - name: Install Debian system dependencies
+        if: ${{ matrix.libc == 'gnu' }}
+        run: |
+          docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apt-get update
+          docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apt-get install -y cmake
       - name: Install Debian cross-compiler
         if: ${{ matrix.libc == 'gnu' && matrix.platform != 'amd64' }}
         run: |
-          docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apt-get update
           docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apt-get install -y binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+      - name: Update Rubygems and Bundler
+        run: |
+          docker exec -w "${PWD}" ${{ steps.container.outputs.id }} gem update --system 3.3.26
+          docker exec -w "${PWD}" ${{ steps.container.outputs.id }} gem install bundler -v '~> 2.3.26'
       - name: Checkout
         uses: actions/checkout@v2
       - name: Bundle
@@ -245,6 +265,10 @@ jobs:
       - name: Inject V8
         run: |
             docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ./libexec/inject-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
+      - name: Test V8 in C++
+        if: matrix.platform != 'arm64'
+        run: |
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bash -c "cd test/gtest && cmake -S . -B build && cd build && cmake --build . && ctest"
       - name: Build binary gem
         run: |
             docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle exec rake binary[${{ steps.platform.outputs.ruby_target_platform }}]
@@ -266,12 +290,6 @@ jobs:
           - amd64
           # other platforms would need emulation, which is way too slow
         container:
-          - image: ruby:2.6
-            version: '2.6'
-            libc: gnu
-          - image: ruby:2.6-alpine
-            version: '2.6'
-            libc: musl
           - image: ruby:2.7
             version: '2.7'
             libc: gnu
@@ -298,6 +316,10 @@ jobs:
       - name: Install Alpine system dependencies
         if: ${{ matrix.container.libc == 'musl' }}
         run: apk add --no-cache build-base linux-headers bash python3 git curl tar
+      - name: Update Rubygems and Bundler
+        run: |
+          gem update --system 3.3.26
+          gem install bundler -v '~> 2.3.26'
       - name: Set metadata
         id: set-metadata
         run: |
@@ -312,6 +334,7 @@ jobs:
         run: gem install --verbose pkg/libv8-node-${{ needs.build-ruby.outputs.GEM_VERSION }}.gem
       - name: Test with mini_racer
         run: |
+          export BUNDLE_FORCE_RUBY_PLATFORM=y
           git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
           cd test/mini_racer
           git fetch origin refs/pull/261/head
@@ -364,7 +387,6 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '2.6'
           - '2.7'
           - '3.0'
           - '3.1'
@@ -378,9 +400,6 @@ jobs:
           - gnu
           - musl
         include:
-          - version: '2.6'
-            platform: 'arm64'
-            libc: 'gnu'
           - version: '2.7'
             platform: 'arm64'
             libc: 'gnu'
@@ -418,6 +437,10 @@ jobs:
       - name: Install Alpine system dependencies
         if: ${{ matrix.libc == 'musl' }}
         run: docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apk add --no-cache build-base git libstdc++
+      - name: Update Rubygems and Bundler
+        run: |
+          docker exec -w "${PWD}" ${{ steps.container.outputs.id }} gem update --system 3.3.26
+          docker exec -w "${PWD}" ${{ steps.container.outputs.id }} gem install bundler -v '~> 2.3.26'
       - name: Set metadata
         id: set-metadata
         run: |
