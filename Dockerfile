@@ -1,8 +1,8 @@
 ARG RUBY_VERSION=2.7
 FROM ruby:${RUBY_VERSION}
 
-RUN test ! -f /etc/alpine-release || apk add --no-cache build-base bash python3 git curl tar ccache
-RUN test -f /etc/alpine-release || (apt-get update && apt-get install -y ccache)
+RUN test ! -f /etc/alpine-release || apk add --no-cache build-base bash python3 git curl tar ccache clang
+RUN test -f /etc/alpine-release || (apt-get update && apt-get install -y ccache clang)
 ENV CCACHE_DIR=/ccache
 
 RUN gem update --system 3.3.26 && gem install bundler -v '~> 2.3.26'
