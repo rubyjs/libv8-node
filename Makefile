@@ -5,22 +5,29 @@ VERSION := $(shell ./libexec/metadata version)
 NODE_VERSION := $(shell ./libexec/metadata node_version)
 RUBY_VERSION = $(shell ruby -e 'puts RUBY_VERSION.gsub(/\d+$$/, "0")')
 
+.PHONY: vars
 vars:
 	@echo $(PWD)
 	@echo $(OS) $(CPU)
 	@echo $(VERSION) $(NODE_VERSION)
 	@echo $(RUBY_VERSION)
 
+.PHONY: all
 all: gem test
 
+.PHONY: build
 build: src/node-v$(NODE_VERSION)/out/Release/node
 
+.PHONY: lib
 lib: src/node-v$(NODE_VERSION)/out/Release/libv8_monolith.a
 
+.PHONY: gem
 gem: pkg/libv8-node-$(VERSION)-$(CPU)-$(OS).gem
 
+.PHONY: test
 test: test/$(CPU)-$(OS)
 
+.PHONY: ctest
 ctest: vendor/v8
 	cd test/gtest && cmake -S . -B build && cd build && cmake --build . && ctest
 
@@ -36,12 +43,14 @@ src/node-v$(NODE_VERSION)/out/Release/node: src/node-v$(NODE_VERSION)
 src/node-v$(NODE_VERSION)/out/Release/libv8_monolith.a: src/node-v$(NODE_VERSION)/out/Release/node
 	./libexec/build-monolith $(NODE_VERSION)
 
+.PHONY: vendor/v8
 vendor/v8: src/node-v$(NODE_VERSION)/out/Release/libv8_monolith.a
 	./libexec/inject-libv8 $(NODE_VERSION)
 
 pkg/libv8-node-$(VERSION)-$(CPU)-$(OS).gem: vendor/v8
 	bundle exec rake binary
 
+.PHONY: test/$(CPU)-$(OS)
 test/$(CPU)-$(OS): pkg/libv8-node-$(VERSION)-$(CPU)-$(OS).gem
 	test -d test/mini_racer || git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
 	cd test/mini_racer && git fetch origin refs/pull/261/head && git checkout FETCH_HEAD && git reset --hard && git clean -f -d -x
