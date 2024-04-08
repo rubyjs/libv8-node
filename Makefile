@@ -53,7 +53,7 @@ pkg/libv8-node-$(VERSION)-$(CPU)-$(OS).gem: vendor/v8
 .PHONY: test/$(CPU)-$(OS)
 test/$(CPU)-$(OS): pkg/libv8-node-$(VERSION)-$(CPU)-$(OS).gem
 	test -d test/mini_racer || git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
-	cd test/mini_racer && git fetch origin refs/pull/261/head && git checkout FETCH_HEAD && git reset --hard && git clean -f -d -x
+	cd test/mini_racer && git fetch origin refs/pull/299/head && git checkout FETCH_HEAD && git reset --hard && git clean -f -d -x
 	ruby -i -ne '$$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"$(VERSION)\"\n") : print' test/mini_racer/lib/mini_racer/version.rb
 	ruby -i -ne '$$_ =~ /spec.required_ruby_version/ ? "" : print' test/mini_racer/mini_racer.gemspec
 	cd test/mini_racer && env TOP="$(PWD)" GEM_HOME="$(PWD)/test/bundle/ruby/$(RUBY_VERSION)" BUNDLE_PATH="$(PWD)/test/bundle" sh -c 'rm -rf "$${GEM_HOME}" && gem install $${TOP}/$< && bundle install && bundle exec rake compile && bundle exec rake test'
