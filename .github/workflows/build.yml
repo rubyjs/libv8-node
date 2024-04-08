@@ -343,7 +343,7 @@ jobs:
           export BUNDLE_FORCE_RUBY_PLATFORM=y
           git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
           cd test/mini_racer
-          git fetch origin refs/pull/261/head
+          git fetch origin refs/pull/299/head
           git checkout FETCH_HEAD
           git reset --hard
           git clean -f -d -x
@@ -379,7 +379,7 @@ jobs:
         run: |
           git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
           cd test/mini_racer
-          git fetch origin refs/pull/261/head
+          git fetch origin refs/pull/299/head
           git checkout FETCH_HEAD
           git reset --hard
           git clean -f -d -x
@@ -467,7 +467,7 @@ jobs:
         run: |
           git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
           cd test/mini_racer
-          git fetch origin refs/pull/261/head
+          git fetch origin refs/pull/299/head
           git checkout FETCH_HEAD
           git reset --hard
           git clean -f -d -x
