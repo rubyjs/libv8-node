@@ -20,7 +20,7 @@ module Libv8::Node
     end
 
     def platform
-      Gem::Platform.local.tap { |p| RUBY_PLATFORM =~ /musl/ && p.version.nil? && p.instance_eval { @version = 'musl' } }.to_s.gsub(/-darwin-?\d+/, '-darwin')
+      Gem::Platform.local.tap { |p| RUBY_PLATFORM =~ /musl/ && p.version.nil? && p.instance_eval { @version = 'musl' } }.to_s.sub(/-darwin\K-?\d+|-linux\K-gnu\z/, '')
     end
 
     def config
