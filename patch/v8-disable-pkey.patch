@@ -1,0 +1,17 @@
+diff --git a/deps/v8/src/base/build_config.h b/deps/v8/src/base/build_config.h
+index 9ed4c8f102..dfca698506 100644
+--- a/deps/v8/src/base/build_config.h
++++ b/deps/v8/src/base/build_config.h
+@@ -35,11 +35,8 @@
+ #define V8_HAS_PTHREAD_JIT_WRITE_PROTECT 0
+ #endif
+ 
+-#if defined(V8_OS_LINUX) && defined(V8_HOST_ARCH_X64)
+-#define V8_HAS_PKU_JIT_WRITE_PROTECT 1
+-#else
++// disabled, see https://issues.chromium.org/issues/360909072
+ #define V8_HAS_PKU_JIT_WRITE_PROTECT 0
+-#endif
+ 
+ #if defined(V8_TARGET_ARCH_IA32) || defined(V8_TARGET_ARCH_X64)
+ #define V8_TARGET_ARCH_STORES_RETURN_ADDRESS_ON_STACK true
