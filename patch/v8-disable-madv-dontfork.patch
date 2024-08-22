@@ -1,0 +1,16 @@
+diff --git a/tools/v8_gypfiles/features.gypi b/tools/v8_gypfiles/features.gypi
+index 6e21dac6d7..bcf022fb28 100644
+--- a/tools/v8_gypfiles/features.gypi
++++ b/tools/v8_gypfiles/features.gypi
+@@ -73,7 +73,10 @@
+       }, {
+         'v8_enable_etw_stack_walking': 0,
+       }],
+-      ['OS=="linux"', {
++      # Disable madvise(MADV_DONTFORK), it's a great optimization for programs
++      # that fork & exec but not for programs that fork and keep running.
++      # It makes mini_racer's test/test_forking.rb test segfault.
++      ['False and OS=="linux"', {
+         # Sets -dV8_ENABLE_PRIVATE_MAPPING_FORK_OPTIMIZATION.
+         #
+         # This flag speeds up the performance of fork/execve on Linux systems for
