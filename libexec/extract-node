@@ -32,6 +32,7 @@ cd "${src}/node-v${version}"
 #patch -p1 < "${top}"/patch/gyp-libv8_monolith.patch
 #patch -p1 < "${top}"/patch/py2-icutrim.patch
 #patch -p1 < "${top}"/patch/py2-genv8constants.patch
+patch -p1 < "${top}"/patch/v8-disable-madv-dontfork.patch
 patch -p1 < "${top}"/patch/v8-disable-pkey.patch
 
 # TODO: the following still fails on py3 so the above one forcing py2 is needed
