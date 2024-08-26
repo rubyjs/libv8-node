@@ -16,7 +16,7 @@ struct Framework {
 		main();
 
 		v8::V8::Dispose();
-		v8::V8::ShutdownPlatform();
+		v8::V8::DisposePlatform();
 	}
 
 	inline static void runWithIsolateRaw(iso_main main) {
