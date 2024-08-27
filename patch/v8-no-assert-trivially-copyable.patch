@@ -1,0 +1,14 @@
+diff --git a/deps/v8/src/base/small-vector.h b/deps/v8/src/base/small-vector.h
+index edaab3a7a6..533a536178 100644
+--- a/deps/v8/src/base/small-vector.h
++++ b/deps/v8/src/base/small-vector.h
+@@ -20,9 +20,6 @@ namespace base {
+ // dynamic storage when it overflows.
+ template <typename T, size_t kSize, typename Allocator = std::allocator<T>>
+ class SmallVector {
+-  // Currently only support trivially copyable and trivially destructible data
+-  // types, as it uses memcpy to copy elements and never calls destructors.
+-  ASSERT_TRIVIALLY_COPYABLE(T);
+   static_assert(std::is_trivially_destructible<T>::value);
+ 
+  public:
