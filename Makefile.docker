@@ -38,28 +38,28 @@ pkg/libv8-node-$(VERSION)-aarch64-linux-musl.gem:
 
 test/x86_64-linux: pkg/libv8-node-$(VERSION)-x86_64-linux.gem
 	test -d test/mini_racer || git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
-	cd test/mini_racer && git fetch origin refs/pull/299/head && git checkout FETCH_HEAD && git reset --hard && git clean -f -d -x
+	cd test/mini_racer
 	ruby -i -ne '$$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"$(VERSION)\"\n") : print' test/mini_racer/lib/mini_racer/version.rb
 	ruby -i -ne '$$_ =~ /spec.required_ruby_version/ ? "" : print' test/mini_racer/mini_racer.gemspec
 	docker run --platform linux/amd64 --rm -it -v "$(PWD)/test:/code/test" -w "/code/test/mini_racer" libv8-node:$(VERSION)-gnu sh -c 'gem install ../../$< && bundle install && bundle exec rake compile && bundle exec rake test'
 
 test/x86_64-linux-musl: pkg/libv8-node-$(VERSION)-x86_64-linux-musl.gem
 	test -d test/mini_racer || git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
-	cd test/mini_racer && git fetch origin refs/pull/299/head && git checkout FETCH_HEAD && git reset --hard && git clean -f -d -x
+	cd test/mini_racer
 	ruby -i -ne '$$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"$(VERSION)\"\n") : print' test/mini_racer/lib/mini_racer/version.rb
 	ruby -i -ne '$$_ =~ /spec.required_ruby_version/ ? "" : print' test/mini_racer/mini_racer.gemspec
 	docker run --platform linux/amd64 --rm -it -v "$(PWD)/test:/code/test" -w "/code/test/mini_racer" libv8-node:$(VERSION)-musl sh -c 'gem install ../../$< && bundle install && bundle exec rake compile && bundle exec rake test'
 
 test/aarch64-linux: pkg/libv8-node-$(VERSION)-aarch64-linux.gem
 	test -d test/mini_racer || git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
-	cd test/mini_racer && git fetch origin refs/pull/299/head && git checkout FETCH_HEAD && git reset --hard && git clean -f -d -x
+	cd test/mini_racer
 	ruby -i -ne '$$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"$(VERSION)\"\n") : print' test/mini_racer/lib/mini_racer/version.rb
 	ruby -i -ne '$$_ =~ /spec.required_ruby_version/ ? "" : print' test/mini_racer/mini_racer.gemspec
 	docker run --platform linux/arm64 --rm -it -v "$(PWD)/test:/code/test" -w "/code/test/mini_racer" libv8-node:$(VERSION)-gnu sh -c 'gem install ../../$< && bundle install && bundle exec rake compile && bundle exec rake test'
 
 test/aarch64-linux-musl: pkg/libv8-node-$(VERSION)-aarch64-linux-musl.gem
 	test -d test/mini_racer || git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
-	cd test/mini_racer && git fetch origin refs/pull/299/head && git checkout FETCH_HEAD && git reset --hard && git clean -f -d -x
+	cd test/mini_racer
 	ruby -i -ne '$$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"$(VERSION)\"\n") : print' test/mini_racer/lib/mini_racer/version.rb
 	ruby -i -ne '$$_ =~ /spec.required_ruby_version/ ? "" : print' test/mini_racer/mini_racer.gemspec
 	docker run --platform linux/arm64 --rm -it -v "$(PWD)/test:/code/test" -w "/code/test/mini_racer" libv8-node:$(VERSION)-musl sh -c 'gem install ../../$< && bundle install && bundle exec rake compile && bundle exec rake test'
