@@ -338,10 +338,6 @@ jobs:
           export BUNDLE_FORCE_RUBY_PLATFORM=y
           git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
           cd test/mini_racer
-          git fetch origin refs/pull/299/head
-          git checkout FETCH_HEAD
-          git reset --hard
-          git clean -f -d -x
           ruby -i -ne '$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"${{ needs.build-ruby.outputs.GEM_VERSION }}\"\n") : print' lib/mini_racer/version.rb
           ruby -i -ne '$_ =~ /spec.required_ruby_version/ ? "" : print' mini_racer.gemspec
           bundle install
@@ -374,10 +370,6 @@ jobs:
         run: |
           git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
           cd test/mini_racer
-          git fetch origin refs/pull/299/head
-          git checkout FETCH_HEAD
-          git reset --hard
-          git clean -f -d -x
           ruby -i -ne '$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"${{ needs.build-darwin.outputs.GEM_VERSION }}\"\n") : print' lib/mini_racer/version.rb
           ruby -i -ne '$_ =~ /spec.required_ruby_version/ ? "" : print' mini_racer.gemspec
           bundle install
@@ -458,10 +450,6 @@ jobs:
         run: |
           git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
           cd test/mini_racer
-          git fetch origin refs/pull/299/head
-          git checkout FETCH_HEAD
-          git reset --hard
-          git clean -f -d -x
           ruby -i -ne '$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"${{ needs.build-linux.outputs.GEM_VERSION }}\"\n") : print' lib/mini_racer/version.rb
           ruby -i -ne '$_ =~ /spec.required_ruby_version/ ? "" : print' mini_racer.gemspec
           docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle install
