@@ -35,6 +35,7 @@ cd "${src}/node-v${version}"
 patch -p1 < "${top}"/patch/v8-no-assert-trivially-copyable.patch
 patch -p1 < "${top}"/patch/v8-disable-madv-dontfork.patch
 patch -p1 < "${top}"/patch/v8-disable-pkey.patch
+patch -p1 < "${top}"/patch/v8-disable-marking.patch
 
 # TODO: the following still fails on py3 so the above one forcing py2 is needed
 # patch -p1 < ../../py3-genv8constants.patch
