@@ -17,7 +17,9 @@ BUILDTYPE="${BUILDTYPE:-Release}"
 
 cd "${src}/node-v${version}"
 
-configure_flags='--openssl-no-asm --without-npm --shared --with-intl=full-icu'
+# Maglev is disabled because of a suspected x64 snapshot regression in
+# DoComputeOutputFrames
+configure_flags='--v8-disable-maglev --openssl-no-asm --without-npm --shared --with-intl=full-icu'
 eval "$("${libexec}/platform")"
 
 echo "configure: ${configure_flags}"
