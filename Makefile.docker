@@ -21,19 +21,19 @@ test/linux: test/$(subst arm64,aarch64,$(CPU))-linux
 test/linux-musl: test/$(subst arm64,aarch64,$(CPU))-linux-musl
 
 pkg/libv8-node-$(VERSION)-x86_64-linux.gem:
-	docker buildx build --platform linux/amd64 --build-arg RUBY_VERSION=2.7 --build-arg NODE_VERSION=$(NODE_VERSION) --progress plain -t libv8-node:$(VERSION)-gnu .
+	docker buildx build --platform linux/amd64 --build-arg RUBY_VERSION=3.1 --build-arg NODE_VERSION=$(NODE_VERSION) --progress plain -t libv8-node:$(VERSION)-gnu .
 	docker run --platform linux/amd64 --rm -it -v "$(PWD)/pkg":/pkg libv8-node:$(VERSION)-gnu cp $@ /pkg/
 
 pkg/libv8-node-$(VERSION)-x86_64-linux-musl.gem:
-	docker buildx build --platform linux/amd64 --build-arg RUBY_VERSION=2.7-alpine --build-arg NODE_VERSION=$(NODE_VERSION) --progress plain -t libv8-node:$(VERSION)-musl .
+	docker buildx build --platform linux/amd64 --build-arg RUBY_VERSION=3.1-alpine --build-arg NODE_VERSION=$(NODE_VERSION) --progress plain -t libv8-node:$(VERSION)-musl .
 	docker run --platform linux/amd64 --rm -it -v "$(PWD)/pkg":/pkg libv8-node:$(VERSION)-musl cp $@ /pkg/
 
 pkg/libv8-node-$(VERSION)-aarch64-linux.gem:
-	docker buildx build --platform linux/arm64 --build-arg RUBY_VERSION=2.7 --build-arg NODE_VERSION=$(NODE_VERSION) --progress plain -t libv8-node:$(VERSION)-gnu .
+	docker buildx build --platform linux/arm64 --build-arg RUBY_VERSION=3.1 --build-arg NODE_VERSION=$(NODE_VERSION) --progress plain -t libv8-node:$(VERSION)-gnu .
 	docker run --platform linux/arm64 --rm -it -v "$(PWD)/pkg":/pkg libv8-node:$(VERSION)-gnu cp $@ /pkg/
 
 pkg/libv8-node-$(VERSION)-aarch64-linux-musl.gem:
-	docker buildx build --platform linux/arm64 --build-arg RUBY_VERSION=2.7-alpine --build-arg NODE_VERSION=$(NODE_VERSION) --progress plain -t libv8-node:$(VERSION)-musl .
+	docker buildx build --platform linux/arm64 --build-arg RUBY_VERSION=3.1-alpine --build-arg NODE_VERSION=$(NODE_VERSION) --progress plain -t libv8-node:$(VERSION)-musl .
 	docker run --platform linux/arm64 --rm -it -v "$(PWD)/pkg":/pkg libv8-node:$(VERSION)-musl cp $@ /pkg/
 
 test/x86_64-linux: pkg/libv8-node-$(VERSION)-x86_64-linux.gem
