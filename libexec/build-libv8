@@ -43,4 +43,4 @@ if [ "$host_platform" != "$target_platform" ] && [ "${target_platform%%-*}" = "a
 fi
 
 export PATH="${PWD}/out/tools/bin:${PATH}"
-make -j"${NJOBS}" -C out BUILDTYPE="${BUILDTYPE}" V=0
+make -j"${NJOBS}" -C out BUILDTYPE="${BUILDTYPE}" V=0 CC=clang CC.host=clang CXX=clang++ CXX.host=clang++
