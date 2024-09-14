@@ -98,10 +98,10 @@ if [ "${host_platform}" != "${target_platform}" ]; then
             configure_flags='--dest-cpu=arm --cross-compiling --dest-os=linux --with-arm-float-abi=hard --with-arm-fpu=neon'
             ;;
         x86_64-*linux*)
-            CC='x86_64-linux-gnu-gcc'
-            CXX='x86_64-linux-gnu-g++'
-            CC_host='gcc'
-            CXX_host='g++'
+            CC='clang -arch x86_64'
+            CXX='clang++ -arch x86_64'
+            CC_host='clang'
+            CXX_host='clang++'
             STRIP='x86_64-linux-gnu-strip'
             configure_flags='--dest-cpu=x86_64 --cross-compiling --dest-os=linux'
             ;;
