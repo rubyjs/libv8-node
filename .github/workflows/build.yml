@@ -95,15 +95,15 @@ jobs:
         id: set-metadata
         run: |
             ./libexec/metadata ruby_platform | tee ruby_platform
-            echo "::set-output name=RUBY_PLATFORM::$(cat ruby_platform)"
+            echo "RUBY_PLATFORM=$(cat ruby_platform)" >> $GITHUB_OUTPUT
             ./libexec/metadata gem_platform | tee gem_platform
-            echo "::set-output name=GEM_PLATFORM::$(cat gem_platform)"
+            echo "GEM_PLATFORM=$(cat gem_platform)" >> $GITHUB_OUTPUT
             ./libexec/metadata gem_version | tee gem_version
-            echo "::set-output name=GEM_VERSION::$(cat gem_version)"
+            echo "GEM_VERSION=$(cat gem_version)" >> $GITHUB_OUTPUT
             ./libexec/metadata node_version | tee node_version
-            echo "::set-output name=NODE_VERSION::$(cat node_version)"
+            echo "NODE_VERSION=$(cat node_version)" >> $GITHUB_OUTPUT
             ./libexec/metadata libv8_version | tee libv8_version
-            echo "::set-output name=LIBV8_VERSION::$(cat libv8_version)"
+            echo "LIBV8_VERSION=$(cat libv8_version)" >> $GITHUB_OUTPUT
       - name: Download Node.js
         run: |
             ./libexec/download-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
