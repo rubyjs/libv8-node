@@ -95,9 +95,9 @@ jobs:
         id: set-metadata
         run: |
             ./libexec/metadata ruby_platform | tee ruby_platform
-            echo "RUBY_PLATFORM=$(cat ruby_platform)" >> $GITHUB_OUTPUT
+            echo "RUBY_PLATFORM=$RUBY_TARGET_PLATFORM" >> $GITHUB_OUTPUT
             ./libexec/metadata gem_platform | tee gem_platform
-            echo "GEM_PLATFORM=$(cat gem_platform)" >> $GITHUB_OUTPUT
+            echo "GEM_PLATFORM=$TARGET_PLATFORM" >> $GITHUB_OUTPUT
             ./libexec/metadata gem_version | tee gem_version
             echo "GEM_VERSION=$(cat gem_version)" >> $GITHUB_OUTPUT
             ./libexec/metadata node_version | tee node_version
