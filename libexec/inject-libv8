@@ -56,7 +56,9 @@ for lib in libv8_monolith.a; do
             "$AR" "$AREXTRACTFLAGS" "$BASEDIR/out/${BUILDTYPE}/$lib"
 
             # strip all objects
-            "$FIND" -type f -exec "$STRIP" -Sx {} +
+            if [ "$BUILDTYPE" = "Release" ]; then
+                "$FIND" -type f -exec "$STRIP" -Sx {} +
+            fi
 
             # rebuild the archive
             "$FIND" -type f -exec "$AR" "$ARCOLLECTFLAGS" "../$lib" {} +
