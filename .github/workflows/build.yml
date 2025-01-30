@@ -68,7 +68,7 @@ jobs:
         run: |
             bundle exec rake build
       - name: Upload gem
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: gem-${{ steps.set-metadata.outputs.GEM_VERSION  }}-ruby
           path: pkg
@@ -135,12 +135,12 @@ jobs:
         run: |
             bundle exec rake binary
       - name: Upload V8
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: v8-${{ steps.set-metadata.outputs.LIBV8_VERSION  }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
           path: vendor
       - name: Upload gem
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: gem-${{ steps.set-metadata.outputs.GEM_VERSION  }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
           path: pkg
@@ -274,12 +274,12 @@ jobs:
         run: |
             docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle exec rake binary[${{ steps.platform.outputs.ruby_target_platform }}]
       - name: Upload V8
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: v8-${{ steps.set-metadata.outputs.LIBV8_VERSION  }}-${{ steps.platform.outputs.ruby_target_platform }}
           path: vendor
       - name: Upload gem
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: gem-${{ steps.set-metadata.outputs.GEM_VERSION  }}-${{ steps.platform.outputs.ruby_target_platform }}
           path: pkg
@@ -327,7 +327,7 @@ jobs:
             ruby -e 'puts Gem.platforms.last.to_s' | tee gem_platform
             echo "::set-output name=GEM_PLATFORM::$(cat gem_platform)"
       - name: Download a single artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: gem-${{ needs.build-ruby.outputs.GEM_VERSION }}-ruby
           path: pkg
@@ -360,7 +360,7 @@ jobs:
             ruby -e 'puts Gem.platforms.last.to_s.gsub(/-darwin-?\d+/, "-darwin")' | tee gem_platform
             echo "::set-output name=GEM_PLATFORM::$(cat gem_platform)"
       - name: Download a single artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: gem-${{ needs.build-darwin.outputs.GEM_VERSION }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
           path: pkg
@@ -440,7 +440,7 @@ jobs:
             docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ruby -e 'puts Gem::Platform.local.tap { |p| RUBY_PLATFORM =~ /musl/ && p.version.nil? and p.instance_eval { @version = "musl" } }.to_s' | tee gem_platform
             echo "::set-output name=GEM_PLATFORM::$(cat gem_platform)"
       - name: Download a single artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: gem-${{ needs.build-linux.outputs.GEM_VERSION }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
           path: pkg
