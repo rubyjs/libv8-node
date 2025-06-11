@@ -14,6 +14,7 @@ NJOBS="${NJOBS:-1}"
 echo "parallel job count: ${NJOBS}"
 
 BUILDTYPE="${BUILDTYPE:-Release}"
+GITHUB_ACTIONS="${GITHUB_ACTIONS:-}"
 
 cd "${src}/node-v${version}"
 
@@ -42,5 +43,15 @@ if [ "$host_platform" != "$target_platform" ] && [ "${target_platform%%-*}" = "a
 	find . -iname "*.host.mk" -exec sed -i '/-msign-return-address/d' {} ';'
 fi
 
+if [ "${BUILDTYPE}" = "Release" ] && [ "${GITHUB_ACTIONS}" != "" ]; then
+	case "${target_platform}" in
+		arm64*-darwin*)
+			# dwarf debug info for v8 is so massive the macos
+			# builder runs out of disk space when it's enabled
+			find out -name '*.mk' -exec sed -i '' -e 's/gdwarf-2/g0/g' {} ';'
+			;;
+	esac
+fi
+
 export PATH="${PWD}/out/tools/bin:${PATH}"
-make -j"${NJOBS}" -C out BUILDTYPE="${BUILDTYPE}" V=0 CC=clang CC.host=clang CXX=clang++ CXX.host=clang++
+make -j"${NJOBS}" -C out BUILDTYPE="${BUILDTYPE}" V=

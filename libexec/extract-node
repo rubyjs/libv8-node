@@ -29,6 +29,7 @@ extract "${src}" "${src}/node-v${version}.tar.gz"
 
 cd "${src}/node-v${version}"
 
+patch -p1 < "${top}"/patch/v8-add-missing-typename.patch
 patch -p1 < "${top}"/patch/v8-std-is-trivially-destructible.patch
 patch -p1 < "${top}"/patch/v8-disable-madv-dontfork.patch
 patch -p1 < "${top}"/patch/v8-disable-pkey.patch

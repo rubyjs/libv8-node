@@ -6,7 +6,7 @@ on:
 jobs:
   rubocop:
     name: Lint (Rubocop)
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     container: ruby:3.1
     steps:
      - name: Checkout
@@ -17,7 +17,7 @@ jobs:
        run: bundle exec rubocop -f simple
   shellcheck:
     name: Lint (Shellcheck)
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     container: debian:10
     steps:
      - name: Checkout
@@ -30,7 +30,7 @@ jobs:
     name: Build (ruby)
     outputs:
       GEM_VERSION: ${{ steps.set-metadata.outputs.GEM_VERSION }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     container: ruby:3.1
     steps:
       - name: Update Rubygems and Bundler
@@ -77,12 +77,11 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - x86_64
           - arm64
     name: Build (darwin)
     outputs:
       GEM_VERSION: ${{ steps.set-metadata.outputs.GEM_VERSION }}
-    runs-on: macos-13
+    runs-on: macos-15-xlarge
     env:
       TARGET_PLATFORM: ${{ matrix.platform }}-darwin
       RUBY_TARGET_PLATFORM: ${{ matrix.platform }}-darwin
@@ -162,7 +161,7 @@ jobs:
     name: Build (linux)
     outputs:
       GEM_VERSION: ${{ steps.set-metadata.outputs.GEM_VERSION }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Set cross-compilation platform
         id: platform
@@ -311,7 +310,7 @@ jobs:
             libc: musl
     name: Test (ruby) (${{ matrix.container.version }}, ${{ matrix.platform }}, ${{ matrix.container.libc }})
     needs: build-ruby
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     container: ${{ matrix.container.image }}
     steps:
       - name: Install Alpine system dependencies
@@ -352,7 +351,7 @@ jobs:
           # arm64
     name: Test (darwin)
     needs: build-darwin
-    runs-on: macos-13
+    runs-on: macos-15-xlarge
     steps:
       - name: Set metadata
         id: set-metadata
@@ -404,7 +403,7 @@ jobs:
             libc: 'gnu'
     name: Test (linux)
     needs: build-linux
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Enable ${{ matrix.platform }} platform
         id: qemu
