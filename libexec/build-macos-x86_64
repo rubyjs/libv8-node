@@ -50,6 +50,7 @@ bundle exec rake binary
 # Test that the gem can be installed and used.
 gem install pkg/libv8-node-$GEM_VERSION-$GEM_PLATFORM.gem
 
+rm -rf test/mini_racer
 git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
 cd test/mini_racer
 ruby -i -ne "\$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print(\"  LIBV8_NODE_VERSION = \\\"$GEM_VERSION\\\"\\n\") : print" lib/mini_racer/version.rb
