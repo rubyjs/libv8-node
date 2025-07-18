@@ -39,6 +39,10 @@ if(${system_name} STREQUAL "linux")
 	endif()
 endif()
 
+if(APPLE)
+  find_library(CoreFoundation CoreFoundation)
+endif()
+
 message(STATUS "Detected vendor architecture directory: ${vendor_arch}")
 
 # TODO?: Detect and support ruby-arch builds?
@@ -46,6 +50,8 @@ target_link_libraries(c_v8_tests ${CMAKE_SOURCE_DIR}/../../vendor/v8/${vendor_ar
 
 # This has to be after the v8 monolith for some build setups.
 target_link_libraries(c_v8_tests dl)
+
+target_link_libraries(c_v8_tests $<$<PLATFORM_ID:Darwin>:${CoreFoundation}>)
 
 include(GoogleTest)
 gtest_discover_tests(c_v8_tests)
