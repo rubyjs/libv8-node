@@ -6,11 +6,11 @@ index 6e21dac6d7..bcf022fb28 100644
        }, {
          'v8_enable_etw_stack_walking': 0,
        }],
--      ['OS=="linux"', {
+-      ['OS=="linux" or OS=="openharmony"', {
 +      # Disable madvise(MADV_DONTFORK), it's a great optimization for programs
 +      # that fork & exec but not for programs that fork and keep running.
 +      # It makes mini_racer's test/test_forking.rb test segfault.
-+      ['False and OS=="linux"', {
++      ['False and (OS=="linux" or OS=="openharmony")', {
          # Sets -dV8_ENABLE_PRIVATE_MAPPING_FORK_OPTIMIZATION.
          #
          # This flag speeds up the performance of fork/execve on Linux systems for
