@@ -1,23 +1,24 @@
-#/bin/sh
+#!/bin/sh
 
 set -e
 set -u
 
 BASEDIR="${PWD}"
 
-TARGET_PLATFORM=x86_64-darwin
-RUBY_TARGET_PLATFORM=x86_64-darwin
+export TARGET_PLATFORM=x86_64-darwin
+export RUBY_TARGET_PLATFORM=x86_64-darwin
 
 bundle install
 
+# shellcheck disable=SC2034
 RUBY_PLATFORM=$(./libexec/metadata ruby_platform)
 GEM_PLATFORM=$(./libexec/metadata gem_platform)
 GEM_VERSION=$(./libexec/metadata gem_version)
 NODE_VERSION=$(./libexec/metadata node_version)
 LIBV8_VERSION=$(./libexec/metadata libv8_version)
 
-./libexec/download-node $NODE_VERSION
-./libexec/extract-node $NODE_VERSION
+./libexec/download-node "$NODE_VERSION"
+./libexec/extract-node "$NODE_VERSION"
 
 # Validate that we have the correct V8 version.
 libv8_version_h=$(./libexec/metadata libv8_version_h)
@@ -27,18 +28,16 @@ if [ "$libv8_version_h" != "$LIBV8_VERSION" ]; then
 fi
 
 # Build the package.
-./libexec/build-libv8 $NODE_VERSION
-./libexec/build-monolith $NODE_VERSION
-./libexec/inject-libv8 $NODE_VERSION
+./libexec/build-libv8 "$NODE_VERSION"
+./libexec/build-monolith "$NODE_VERSION"
+./libexec/inject-libv8 "$NODE_VERSION"
 
 # Run V8 tests.
 cd test/gtest
 cmake -S . -B build
 cd build
 cmake --build .
-./c_v8_tests
-
-if [ $? -ne 0 ]; then
+if ! ./c_v8_tests; then
   echo "Tests failed."
   exit 1
 fi
@@ -48,12 +47,13 @@ cd "${BASEDIR}"
 bundle exec rake binary
 
 # Test that the gem can be installed and used.
-gem install pkg/libv8-node-$GEM_VERSION-$GEM_PLATFORM.gem
+gem install pkg/libv8-node-"$GEM_VERSION"-"$GEM_PLATFORM".gem
 
 rm -rf test/mini_racer
 git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
 cd test/mini_racer
 ruby -i -ne "\$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print(\"  LIBV8_NODE_VERSION = \\\"$GEM_VERSION\\\"\\n\") : print" lib/mini_racer/version.rb
+# shellcheck disable=SC2016
 ruby -i -ne '$_ =~ /spec.required_ruby_version/ ? "" : print' mini_racer.gemspec
 bundle install
 bundle exec rake compile
