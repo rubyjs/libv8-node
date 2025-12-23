@@ -7,7 +7,7 @@ jobs:
   rubocop:
     name: Lint (Rubocop)
     runs-on: ubuntu-24.04
-    container: ruby:3.1
+    container: ruby:3.3-trixie
     steps:
      - name: Checkout
        uses: actions/checkout@v2
@@ -18,7 +18,7 @@ jobs:
   shellcheck:
     name: Lint (Shellcheck)
     runs-on: ubuntu-24.04
-    container: debian:10
+    container: debian:trixie
     steps:
      - name: Checkout
        uses: actions/checkout@v2
@@ -31,7 +31,7 @@ jobs:
     outputs:
       GEM_VERSION: ${{ steps.set-metadata.outputs.GEM_VERSION }}
     runs-on: ubuntu-24.04
-    container: ruby:3.1
+    container: ruby:3.3-trixie
     steps:
       - name: Update Rubygems and Bundler
         run: |
@@ -203,7 +203,7 @@ jobs:
         run: |
           case ${{ matrix.libc }} in
             gnu)
-              echo 'ruby:3.1'
+              echo 'ruby:3.3-trixie'
               ;;
             musl)
               echo 'ruby:3.1-alpine'
@@ -308,6 +308,9 @@ jobs:
           - image: ruby:3.3-alpine
             version: '3.3'
             libc: musl
+          - image: ruby:3.3-trixie
+            version: '3.3'
+            libc: gnu
     name: Test (ruby) (${{ matrix.container.version }}, ${{ matrix.platform }}, ${{ matrix.container.libc }})
     needs: build-ruby
     runs-on: ubuntu-24.04

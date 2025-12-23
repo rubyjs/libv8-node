@@ -1,4 +1,4 @@
-ARG RUBY_VERSION=3.1
+ARG RUBY_VERSION=3.3
 FROM ruby:${RUBY_VERSION}
 
 RUN test ! -f /etc/alpine-release || apk add --no-cache build-base bash python3 git curl tar ccache clang
