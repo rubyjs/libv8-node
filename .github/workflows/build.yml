@@ -409,11 +409,9 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Enable ${{ matrix.platform }} platform
-        id: qemu
         if: ${{ matrix.platform != 'amd64' }}
         run: |
-          docker run --privileged --rm tonistiigi/binfmt:latest --install ${{ matrix.platform }} | tee platforms.json
-          echo "platforms=$(cat platforms.json)" >> $GITHUB_OUTPUT
+          docker run --privileged --rm tonistiigi/binfmt:latest --install ${{ matrix.platform }}
       - name: Start container
         id: container
         run: |
