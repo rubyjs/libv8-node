@@ -79,10 +79,15 @@ jobs:
         platform:
           - arm64
           - x86_64
+        include:
+          - platform: arm64
+            runner: macos-15-xlarge
+          - platform: x86_64
+            runner: macos-15-large
     name: Build (darwin) (${{ matrix.platform }})
     outputs:
       GEM_VERSION: ${{ steps.set-metadata.outputs.GEM_VERSION }}
-    runs-on: macos-15-xlarge
+    runs-on: ${{ matrix.runner }}
     env:
       TARGET_PLATFORM: ${{ matrix.platform }}-darwin
       RUBY_TARGET_PLATFORM: ${{ matrix.platform }}-darwin
@@ -376,11 +381,16 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - x86_64
           - arm64
+          - x86_64
+        include:
+          - platform: arm64
+            runner: macos-15-xlarge
+          - platform: x86_64
+            runner: macos-15-large
     name: Test (darwin) (${{ matrix.platform }})
     needs: build-darwin
-    runs-on: macos-15-xlarge
+    runs-on: ${{ matrix.runner }}
     steps:
       - name: Set metadata
         id: set-metadata
