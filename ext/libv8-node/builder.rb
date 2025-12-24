@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 unless $LOAD_PATH.include?(File.expand_path('../../lib', __dir__)) # rubocop:disable Style/IfUnlessModifier
   $LOAD_PATH.unshift(File.expand_path('../../lib', __dir__))
 end

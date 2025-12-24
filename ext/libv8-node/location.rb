@@ -9,16 +9,14 @@ module Libv8; end
 module Libv8::Node
   class Location
     def install!
-      File.open(Pathname(__FILE__).dirname.join('.location.yml'), 'w') do |f|
-        f.write(to_yaml)
-      end
+      File.write(Pathname(__FILE__).dirname.join('.location.yml'), to_yaml)
 
       0
     end
 
     def self.load!
       File.open(Pathname(__FILE__).dirname.join('.location.yml')) do |f|
-        YAML.respond_to?(:unsafe_load) ? YAML.unsafe_load(f) : YAML.load(f) # rubocop:disable Security/YAMLLoad
+        YAML.respond_to?(:unsafe_load) ? YAML.unsafe_load(f) : YAML.load(f)
       end
     end
 
@@ -58,7 +56,7 @@ module Libv8::Node
 
       class ArchiveNotFound < StandardError
         def initialize(filename)
-          super "libv8 did not install properly, expected binary v8 archive '#{filename}'to exist, but it was not found"
+          super("libv8 did not install properly, expected binary v8 archive '#{filename}'to exist, but it was not found")
         end
       end
     end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 $LOAD_PATH.unshift File.expand_path('lib', __dir__)
 require 'libv8/node/version'
 
@@ -22,6 +24,10 @@ Gem::Specification.new do |s|
   s.extensions = ['ext/libv8-node/extconf.rb']
   s.require_paths = ['lib', 'ext']
 
+  s.add_development_dependency 'base64'
+  s.add_development_dependency 'logger'
+  s.add_development_dependency 'mutex_m'
   s.add_development_dependency 'rake', '~> 12'
-  s.add_development_dependency 'rubocop', '~> 1.44.0'
+  s.add_development_dependency 'rubocop', '>= 1.8.0'
+  s.metadata['rubygems_mfa_required'] = 'true'
 end

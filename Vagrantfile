@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Vagrant.configure('2') do |config|
   config.vm.box                = 'secretescapes/smartos-base64'
   config.vm.box_version        = '1.0.0'

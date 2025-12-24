@@ -1,7 +1,7 @@
 AllCops:
   SuggestExtensions: false
-  NewCops: disable
-  TargetRubyVersion: 2.0
+  NewCops: enable
+  TargetRubyVersion: 3.2
   Exclude:
     - src/**/*
     - pkg/**/*
@@ -21,14 +21,20 @@ Style/ClassAndModuleChildren:
 Style/NumericPredicate:
   Enabled: false
 
-Metrics/LineLength:
+Layout/LineLength:
   Enabled: false
 
 Style/WordArray:
   Enabled: false
 
-Style/PerlBackrefs:
+Style/SuperWithArgsParentheses:
+  Enabled: false
+
+Gemspec/DevelopmentDependencies:
   Enabled: false
 
 Gemspec/RequiredRubyVersion:
+  Enabled: false
+
+Style/PerlBackrefs:
   Enabled: false
