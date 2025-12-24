@@ -29,6 +29,13 @@ host_platform="${triple}"
 target_platform="${TARGET_PLATFORM:-${1:-}}"
 target_platform="${target_platform:-${host_platform}}"
 
+normalize_platform() {
+    echo "$1" | sed -E 's/(x86_64|aarch64|armv[0-9]+|arm).*-linux-musl.*/\1-linux-musl/' | sed -E 's/(x86_64|aarch64|armv[0-9]+|arm).*-linux-gnu.*/\1-linux/' | sed -E 's/armv[0-9]+l?/arm/'
+}
+
+norm_host=$(normalize_platform "${host_platform}")
+norm_target=$(normalize_platform "${target_platform}")
+
 case "${target_platform}" in
     x86_64*-linux-musl)
         RUBY_TARGET_PLATFORM='x86_64-linux-musl'
@@ -57,7 +64,7 @@ case "${target_platform}" in
         RUBY_TARGET_PLATFORM='arm64-darwin'
         ;;
     *)
-        if [ "${host_platform}" != "${target_platform}" ]; then
+        if [ "${norm_host}" != "${norm_target}" ]; then
             echo 'cross compilation not supported'
             exit 1
         fi
@@ -78,8 +85,8 @@ case "${host_platform}" in
         ;;
 esac
 
-if [ "${host_platform}" != "${target_platform}" ]; then
-    echo "# cross compiling host: ${host_platform} target: ${target_platform}"
+if [ "${norm_host}" != "${norm_target}" ]; then
+    echo "# cross compiling host: ${host_platform} (norm: ${norm_host}) target: ${target_platform} (norm: ${norm_target})"
     case "${target_platform}" in
         aarch64-*linux*)
             CC='aarch64-linux-gnu-gcc'

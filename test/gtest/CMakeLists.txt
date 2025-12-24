@@ -33,8 +33,12 @@ else()
   string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} system_arch)
 endif()
 
-if(system_arch STREQUAL "aarch64")
-  set(system_arch "arm64")
+if(system_arch MATCHES "^armv")
+  set(system_arch "arm")
+endif()
+
+if(NOT APPLE AND system_arch STREQUAL "arm64")
+  set(system_arch "aarch64")
 endif()
 
 set(vendor_arch "${system_arch}-${system_name}")

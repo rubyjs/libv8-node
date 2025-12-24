@@ -21,45 +21,45 @@ test/linux: test/$(subst arm64,aarch64,$(CPU))-linux
 test/linux-musl: test/$(subst arm64,aarch64,$(CPU))-linux-musl
 
 pkg/libv8-node-$(VERSION)-x86_64-linux.gem:
-	docker buildx build --platform linux/amd64 --build-arg RUBY_VERSION=3.4 --build-arg NODE_VERSION=$(NODE_VERSION) --progress plain -t libv8-node:$(VERSION)-gnu .
-	docker run --platform linux/amd64 --rm -it -v "$(PWD)/pkg":/pkg libv8-node:$(VERSION)-gnu cp $@ /pkg/
+	docker buildx build --platform linux/amd64 --build-arg RUBY_VERSION=3.4 --build-arg NODE_VERSION=$(NODE_VERSION) --progress plain -t libv8-node:$(VERSION)-gnu-amd64 .
+	docker run --platform linux/amd64 --rm -it -v "$(PWD)/pkg":/pkg libv8-node:$(VERSION)-gnu-amd64 cp $@ /pkg/
 
 pkg/libv8-node-$(VERSION)-x86_64-linux-musl.gem:
-	docker buildx build --platform linux/amd64 --build-arg RUBY_VERSION=3.4-alpine --build-arg NODE_VERSION=$(NODE_VERSION) --progress plain -t libv8-node:$(VERSION)-musl .
-	docker run --platform linux/amd64 --rm -it -v "$(PWD)/pkg":/pkg libv8-node:$(VERSION)-musl cp $@ /pkg/
+	docker buildx build --platform linux/amd64 --build-arg RUBY_VERSION=3.4-alpine --build-arg NODE_VERSION=$(NODE_VERSION) --progress plain -t libv8-node:$(VERSION)-musl-amd64 .
+	docker run --platform linux/amd64 --rm -it -v "$(PWD)/pkg":/pkg libv8-node:$(VERSION)-musl-amd64 cp $@ /pkg/
 
 pkg/libv8-node-$(VERSION)-aarch64-linux.gem:
-	docker buildx build --platform linux/arm64 --build-arg RUBY_VERSION=3.4 --build-arg NODE_VERSION=$(NODE_VERSION) --progress plain -t libv8-node:$(VERSION)-gnu .
-	docker run --platform linux/arm64 --rm -it -v "$(PWD)/pkg":/pkg libv8-node:$(VERSION)-gnu cp $@ /pkg/
+	docker buildx build --platform linux/arm64 --build-arg RUBY_VERSION=3.4 --build-arg NODE_VERSION=$(NODE_VERSION) --progress plain -t libv8-node:$(VERSION)-gnu-arm64 .
+	docker run --platform linux/arm64 --rm -it -v "$(PWD)/pkg":/pkg libv8-node:$(VERSION)-gnu-arm64 cp $@ /pkg/
 
 pkg/libv8-node-$(VERSION)-aarch64-linux-musl.gem:
-	docker buildx build --platform linux/arm64 --build-arg RUBY_VERSION=3.4-alpine --build-arg NODE_VERSION=$(NODE_VERSION) --progress plain -t libv8-node:$(VERSION)-musl .
-	docker run --platform linux/arm64 --rm -it -v "$(PWD)/pkg":/pkg libv8-node:$(VERSION)-musl cp $@ /pkg/
+	docker buildx build --platform linux/arm64 --build-arg RUBY_VERSION=3.4-alpine --build-arg NODE_VERSION=$(NODE_VERSION) --progress plain -t libv8-node:$(VERSION)-musl-arm64 .
+	docker run --platform linux/arm64 --rm -it -v "$(PWD)/pkg":/pkg libv8-node:$(VERSION)-musl-arm64 cp $@ /pkg/
 
 test/x86_64-linux: pkg/libv8-node-$(VERSION)-x86_64-linux.gem
 	test -d test/mini_racer || git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
 	cd test/mini_racer
 	ruby -i -ne '$$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"$(VERSION)\"\n") : print' test/mini_racer/lib/mini_racer/version.rb
 	ruby -i -ne '$$_ =~ /spec.required_ruby_version/ ? "" : print' test/mini_racer/mini_racer.gemspec
-	docker run --platform linux/amd64 --rm -it -v "$(PWD)/test:/code/test" -w "/code/test/mini_racer" libv8-node:$(VERSION)-gnu sh -c 'gem install ../../$< && bundle install && bundle exec rake compile && bundle exec rake test'
+	docker run --platform linux/amd64 --rm -it -v "$(PWD)/test:/code/test" -w "/code/test/mini_racer" libv8-node:$(VERSION)-gnu-amd64 sh -c 'gem install ../../$< && bundle install && bundle exec rake compile && bundle exec rake test'
 
 test/x86_64-linux-musl: pkg/libv8-node-$(VERSION)-x86_64-linux-musl.gem
 	test -d test/mini_racer || git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
 	cd test/mini_racer
 	ruby -i -ne '$$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"$(VERSION)\"\n") : print' test/mini_racer/lib/mini_racer/version.rb
 	ruby -i -ne '$$_ =~ /spec.required_ruby_version/ ? "" : print' test/mini_racer/mini_racer.gemspec
-	docker run --platform linux/amd64 --rm -it -v "$(PWD)/test:/code/test" -w "/code/test/mini_racer" libv8-node:$(VERSION)-musl sh -c 'gem install ../../$< && bundle install && bundle exec rake compile && bundle exec rake test'
+	docker run --platform linux/amd64 --rm -it -v "$(PWD)/test:/code/test" -w "/code/test/mini_racer" libv8-node:$(VERSION)-musl-amd64 sh -c 'gem install ../../$< && bundle install && bundle exec rake compile && bundle exec rake test'
 
 test/aarch64-linux: pkg/libv8-node-$(VERSION)-aarch64-linux.gem
 	test -d test/mini_racer || git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
 	cd test/mini_racer
 	ruby -i -ne '$$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"$(VERSION)\"\n") : print' test/mini_racer/lib/mini_racer/version.rb
 	ruby -i -ne '$$_ =~ /spec.required_ruby_version/ ? "" : print' test/mini_racer/mini_racer.gemspec
-	docker run --platform linux/arm64 --rm -it -v "$(PWD)/test:/code/test" -w "/code/test/mini_racer" libv8-node:$(VERSION)-gnu sh -c 'gem install ../../$< && bundle install && bundle exec rake compile && bundle exec rake test'
+	docker run --platform linux/arm64 --rm -it -v "$(PWD)/test:/code/test" -w "/code/test/mini_racer" libv8-node:$(VERSION)-gnu-arm64 sh -c 'gem install ../../$< && bundle install && bundle exec rake compile && bundle exec rake test'
 
 test/aarch64-linux-musl: pkg/libv8-node-$(VERSION)-aarch64-linux-musl.gem
 	test -d test/mini_racer || git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
 	cd test/mini_racer
 	ruby -i -ne '$$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"$(VERSION)\"\n") : print' test/mini_racer/lib/mini_racer/version.rb
 	ruby -i -ne '$$_ =~ /spec.required_ruby_version/ ? "" : print' test/mini_racer/mini_racer.gemspec
-	docker run --platform linux/arm64 --rm -it -v "$(PWD)/test:/code/test" -w "/code/test/mini_racer" libv8-node:$(VERSION)-musl sh -c 'gem install ../../$< && bundle install && bundle exec rake compile && bundle exec rake test'
+	docker run --platform linux/arm64 --rm -it -v "$(PWD)/test:/code/test" -w "/code/test/mini_racer" libv8-node:$(VERSION)-musl-arm64 sh -c 'gem install ../../$< && bundle install && bundle exec rake compile && bundle exec rake test'
