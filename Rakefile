@@ -78,7 +78,7 @@ end
 
 desc 'Fetch gems from a GitHub Actions run URL'
 task :fetch_gems, [:url] do |_, args|
-  url = args[:url] || ENV['URL']
+  url = args[:url] || ENV.fetch('URL', nil)
   abort 'Usage: rake fetch_gems[url]' unless url
   sh "libexec/fetch-gems #{url}"
 end
