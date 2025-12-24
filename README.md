@@ -32,17 +32,14 @@ Here's an informal list of platforms we push so far, with equally informal tiers
 
 Tier 0 (CI built and tested):
 
-- x86_64-darwin (17 to 20)
+- x86_64-darwin
+- arm64-darwin
 - x86_64-linux
 - x86_64-linux-musl
+- aarch64-linux
 
 Tier 1 (manual build and test):
 
-- arm64-darwin (20)
-
-Tier 2 (manual build and test, has known stability issues):
-
-- aarch64-linux
 - aarch64-linux-musl
 
 As a fallback, the source gem (`ruby` gem platform) should compile on all Node supported platforms (including e.g. ppc64le or solaris), but we may not have tested it. Help is welcome!
@@ -61,9 +58,9 @@ There is an outstanding issue with rubygems and bundler, where it may misselect 
 
 ## Versioning
 
-The gem versioning is Node-based, e.g node 15.14.0 gives the gem 15.14.0.0. The last number is an increment for libv8-node fixes. We try as mucha s possible not to include too much changes in such gem fixes, so you can consider these like "patch" in semver.
+The gem versioning is Node-based, e.g node 15.14.0 gives the gem 15.14.0.0. The last number is an increment for libv8-node fixes. We try as much as possible not to include too much changes in such gem fixes, so you can consider these like "patch" in semver.
 
-Compared to the `libv8` gem, there is no odd/even scheme, thanks to the intriduction in bundler of the `force_ruby_platform` flag.
+Compared to the `libv8` gem, there is no odd/even scheme, thanks to the introduction in bundler of the `force_ruby_platform` flag.
 
 ## Requirements
 

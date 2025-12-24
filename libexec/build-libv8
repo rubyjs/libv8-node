@@ -45,7 +45,7 @@ fi
 
 if [ "${BUILDTYPE}" = "Release" ] && [ "${GITHUB_ACTIONS}" != "" ]; then
 	case "${target_platform}" in
-		arm64*-darwin*)
+		*-darwin*)
 			# dwarf debug info for v8 is so massive the macos
 			# builder runs out of disk space when it's enabled
 			find out -name '*.mk' -exec sed -i '' -e 's/gdwarf-2/g0/g' {} ';'

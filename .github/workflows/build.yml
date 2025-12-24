@@ -78,7 +78,8 @@ jobs:
       matrix:
         platform:
           - arm64
-    name: Build (darwin)
+          - x86_64
+    name: Build (darwin) (${{ matrix.platform }})
     outputs:
       GEM_VERSION: ${{ steps.set-metadata.outputs.GEM_VERSION }}
     runs-on: macos-15-xlarge
@@ -123,10 +124,9 @@ jobs:
         run: |
             ./libexec/inject-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
       - name: Test V8 in C++
-        if: matrix.platform != 'arm64'
         run: |
             cd test/gtest
-            cmake -S . -B build
+            cmake -S . -B build -DCMAKE_OSX_ARCHITECTURES=${{ matrix.platform }}
             cd build
             cmake --build .
             ./c_v8_tests
@@ -351,15 +351,15 @@ jobs:
       matrix:
         platform:
           - x86_64
-          # arm64
-    name: Test (darwin)
+          - arm64
+    name: Test (darwin) (${{ matrix.platform }})
     needs: build-darwin
     runs-on: macos-15-xlarge
     steps:
       - name: Set metadata
         id: set-metadata
         run: |
-            ruby -e 'puts Gem.platforms.last.to_s.gsub(/-darwin-?\d+/, "-darwin")' | tee gem_platform
+            echo "${{ matrix.platform }}-darwin" | tee gem_platform
             echo "GEM_PLATFORM=$(cat gem_platform)" >> $GITHUB_OUTPUT
       - name: Download a single artifact
         uses: actions/download-artifact@v4

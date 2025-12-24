@@ -27,7 +27,15 @@ target_link_libraries(
 )
 
 string(TOLOWER ${CMAKE_SYSTEM_NAME} system_name)
-string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} system_arch)
+if(APPLE AND CMAKE_OSX_ARCHITECTURES)
+  string(TOLOWER ${CMAKE_OSX_ARCHITECTURES} system_arch)
+else()
+  string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} system_arch)
+endif()
+
+if(system_arch STREQUAL "aarch64")
+  set(system_arch "arm64")
+endif()
 
 set(vendor_arch "${system_arch}-${system_name}")
 
