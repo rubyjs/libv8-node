@@ -158,10 +158,15 @@ jobs:
         libc:
           - gnu
           - musl
+        include:
+          - platform: amd64
+            runner: ubuntu-24.04
+          - platform: arm64
+            runner: ubuntu-24.04-arm
     name: Build (linux) (${{ matrix.platform }}, ${{ matrix.libc }})
     outputs:
       GEM_VERSION: ${{ steps.set-metadata.outputs.GEM_VERSION }}
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.runner }}
     steps:
       - name: Set cross-compilation platform
         id: platform
@@ -212,10 +217,6 @@ jobs:
           esac | tee ruby_target_platform
           echo "target_platform=$(cat target_platform)" >> $GITHUB_OUTPUT
           echo "ruby_target_platform=$(cat ruby_target_platform)" >> $GITHUB_OUTPUT
-      - name: Enable ${{ matrix.platform }} platform
-        if: ${{ matrix.platform != 'amd64' && matrix.libc == 'musl' }}
-        run: |
-          docker run --privileged --rm tonistiigi/binfmt:latest --install ${{ matrix.platform }}
       - name: Start container
         id: container
         run: |
@@ -229,13 +230,8 @@ jobs:
           esac | tee container_image
           echo "image=$(cat container_image)" >> $GITHUB_OUTPUT
           
-          # use native platform for musl builds (via QEMU if needed)
-          # use amd64 for gnu builds (cross-compilation is faster)
-          if [ "${{ matrix.libc }}" = "musl" ]; then
-            platform="linux/${{ matrix.platform }}"
-          else
-            platform="linux/amd64"
-          fi
+          # use native platform
+          platform="linux/${{ matrix.platform }}"
 
           docker run --rm -d -v "${PWD}":"${PWD}" -w "${PWD}" --platform "${platform}" -e RUBY_TARGET_PLATFORM=${{ steps.platform.outputs.ruby_target_platform }} -e TARGET_PLATFORM=${{ steps.platform.outputs.target_platform }} $(cat container_image) /bin/sleep 64d | tee container_id
           docker exec -w "${PWD}" $(cat container_id) uname -a
@@ -248,14 +244,6 @@ jobs:
         run: |
           docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apt-get update
           docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apt-get install -y cmake clang ccache
-      - name: Install Debian cross-compiler
-        if: ${{ matrix.libc == 'gnu' && matrix.platform != 'amd64' }}
-        run: |
-          case ${{ matrix.platform }} in
-            arm64)
-              docker exec -w "${PWD}" ${{ steps.container.outputs.id }} apt-get install -y binutils-aarch64-linux-gnu gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
-              ;;
-          esac
       - name: Update Rubygems and Bundler
         run: |
           docker exec -w "${PWD}" ${{ steps.container.outputs.id }} gem update --system
@@ -297,7 +285,6 @@ jobs:
         run: |
             docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ./libexec/inject-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
       - name: Test V8 in C++
-        if: ${{ matrix.platform == 'amd64' || matrix.libc == 'musl' }}
         run: |
             docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bash -c "cd test/gtest && cmake -S . -B build && cd build && cmake --build . && ctest"
       - name: Build binary gem
@@ -319,7 +306,7 @@ jobs:
       matrix:
         platform:
           - amd64
-          # other platforms would need emulation, which is way too slow
+          - arm64
         container:
           - image: ruby:3.2
             version: '3.2'
@@ -342,9 +329,14 @@ jobs:
           - image: ruby:3.4-alpine
             version: '3.4'
             libc: musl
+        include:
+          - platform: amd64
+            runner: ubuntu-24.04
+          - platform: arm64
+            runner: ubuntu-24.04-arm
     name: Test (ruby) (${{ matrix.container.version }}, ${{ matrix.platform }}, ${{ matrix.container.libc }})
     needs: build-ruby
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.runner }}
     container: ${{ matrix.container.image }}
     steps:
       - name: Install Alpine system dependencies
@@ -428,6 +420,10 @@ jobs:
           - gnu
           - musl
         include:
+          - platform: amd64
+            runner: ubuntu-24.04
+          - platform: arm64
+            runner: ubuntu-24.04-arm
           - version: '3.2'
             platform: 'arm64'
             libc: 'gnu'
@@ -442,12 +438,8 @@ jobs:
             libc: 'musl'
     name: Test (linux) (${{ matrix.platform }}, ${{ matrix.libc }}, ruby ${{ matrix.version }})
     needs: build-linux
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.runner }}
     steps:
-      - name: Enable ${{ matrix.platform }} platform
-        if: ${{ matrix.platform != 'amd64' }}
-        run: |
-          docker run --privileged --rm tonistiigi/binfmt:latest --install ${{ matrix.platform }}
       - name: Start container
         id: container
         run: |
