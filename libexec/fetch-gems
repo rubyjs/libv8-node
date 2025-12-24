@@ -58,7 +58,7 @@ ls -1 pkg/*.gem
 
 echo ""
 echo "To publish all downloaded gems, run:"
-echo "  gem push pkg/*.gem"
+echo "  for g in pkg/*.gem; do gem push \"\$g\"; done"
 echo ""
 echo "To publish a specific gem:"
 echo "  gem push pkg/<gem-filename>"
