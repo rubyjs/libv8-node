@@ -1,0 +1,64 @@
+#!/bin/bash
+set -e
+
+# libexec/fetch-gems <url-or-run-id>
+# Downloads all artifacts from a GitHub Actions run, extracts the gems,
+# and places them in the pkg/ directory for easy publishing.
+
+URL_OR_ID=$1
+
+if [[ -z "$URL_OR_ID" ]]; then
+  echo "Usage: $0 <github-actions-run-url-or-id>"
+  exit 1
+fi
+
+# Extract run ID from URL or use as is if it's already an ID
+if [[ "$URL_OR_ID" =~ /actions/runs/([0-9]+) ]]; then
+  RUN_ID="${BASH_REMATCH[1]}"
+elif [[ "$URL_OR_ID" =~ ^[0-9]+$ ]]; then
+  RUN_ID="$URL_OR_ID"
+else
+  echo "Error: Could not parse run ID from '$URL_OR_ID'"
+  exit 1
+fi
+
+# Determine repo - default to rubyjs/libv8-node but allow override via GH_REPO env var
+REPO=${GH_REPO:-rubyjs/libv8-node}
+
+echo "Fetching artifacts for run $RUN_ID in $REPO..."
+
+# Create a temporary directory for downloading
+TMP_DIR=$(mktemp -d -t libv8-node-artifacts-XXXXXX)
+trap 'rm -rf "$TMP_DIR"' EXIT
+
+# Download all artifacts
+gh run download "$RUN_ID" --repo "$REPO" -D "$TMP_DIR"
+
+# Ensure pkg directory exists
+mkdir -p pkg
+
+# Move all .gem files to pkg/
+# Artifacts are downloaded into subdirectories named after the artifact
+echo "Extracting gems..."
+found_gems=0
+while IFS= read -r gem_file; do
+  gem_name=$(basename "$gem_file")
+  mv -v "$gem_file" "pkg/$gem_name"
+  found_gems=$((found_gems + 1))
+done < <(find "$TMP_DIR" -name "*.gem")
+
+if [ "$found_gems" -eq 0 ]; then
+  echo "No gems found in artifacts for run $RUN_ID."
+  exit 1
+fi
+
+echo ""
+echo "Successfully downloaded $found_gems gem(s) to pkg/:"
+ls -1 pkg/*.gem
+
+echo ""
+echo "To publish all downloaded gems, run:"
+echo "  gem push pkg/*.gem"
+echo ""
+echo "To publish a specific gem:"
+echo "  gem push pkg/<gem-filename>"
