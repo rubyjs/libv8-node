@@ -22,7 +22,17 @@ module Libv8::Node
     end
 
     def platform
-      Gem::Platform.local.tap { |p| RUBY_PLATFORM =~ /musl/ && p.version.nil? && p.instance_eval { @version = 'musl' } }.to_s.gsub(/-darwin-?\d+/, '-darwin')
+      @platform ||= begin
+        local = Gem::Platform.local
+        parts = [local.cpu, local.os, local.version]
+        parts[2] = 'musl' if RUBY_PLATFORM =~ /musl/
+        ideal = parts.compact.reject { |s| s.to_s.empty? }.join('-').gsub(/-darwin-?\d+/, '-darwin')
+
+        return ideal if File.directory?(File.join(vendored_source_path, ideal))
+
+        available = Dir.glob(File.join(vendored_source_path, '*')).select { |d| File.directory?(d) }.map { |d| File.basename(d) } - ['include']
+        available.size == 1 ? available.first : ideal
+      end
     end
 
     def config

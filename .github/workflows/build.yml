@@ -358,7 +358,7 @@ jobs:
       - name: Set metadata
         id: set-metadata
         run: |
-            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ruby -e 'puts Gem.platforms.last.to_s' | tee gem_platform
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ruby -e 'p = Gem::Platform.local; parts = [p.cpu, p.os, p.version]; parts[2] = "musl" if RUBY_PLATFORM =~ /musl/; puts parts.compact.reject { |s| s.to_s.empty? }.join("-").gsub(/-darwin-?\d+/, "-darwin")' | tee gem_platform
             echo "GEM_PLATFORM=$(cat gem_platform)" >> $GITHUB_OUTPUT
       - name: Download a single artifact
         uses: actions/download-artifact@v4
@@ -473,7 +473,7 @@ jobs:
       - name: Set metadata
         id: set-metadata
         run: |
-            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ruby -e 'puts Gem::Platform.local.tap { |p| RUBY_PLATFORM =~ /musl/ && p.version.nil? and p.instance_eval { @version = "musl" } }.to_s' | tee gem_platform
+            docker exec -w "${PWD}" ${{ steps.container.outputs.id }} ruby -e 'p = Gem::Platform.local; parts = [p.cpu, p.os, p.version]; parts[2] = "musl" if RUBY_PLATFORM =~ /musl/; puts parts.compact.reject { |s| s.to_s.empty? }.join("-").gsub(/-darwin-?\d+/, "-darwin")' | tee gem_platform
             echo "GEM_PLATFORM=$(cat gem_platform)" >> $GITHUB_OUTPUT
       - name: Download a single artifact
         uses: actions/download-artifact@v4

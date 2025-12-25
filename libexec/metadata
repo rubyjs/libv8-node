@@ -5,7 +5,7 @@ case "$1" in
         ruby -e 'puts RUBY_PLATFORM'
         ;;
     gem_platform)
-        ruby -e 'puts Gem::Platform.local.tap { |p| RUBY_PLATFORM =~ /musl/ && p.version.nil? and p.instance_eval { @version = "musl" } }.to_s.gsub(/-darwin-?\d+/, "-darwin")'
+        ruby -e 'p = Gem::Platform.local; parts = [p.cpu, p.os, p.version]; parts[2] = "musl" if RUBY_PLATFORM =~ /musl/; puts parts.compact.reject { |s| s.to_s.empty? }.join("-").gsub(/-darwin-?\d+/, "-darwin")'
         ;;
     gem_version|version)
         ruby -I'lib' -r'libv8/node/version' -e 'puts Libv8::Node::VERSION'
