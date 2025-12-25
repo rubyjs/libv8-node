@@ -22,17 +22,38 @@ module Libv8::Node
     end
 
     def platform
-      @platform ||= begin
-        local = Gem::Platform.local
-        parts = [local.cpu, local.os, local.version]
-        parts[2] = 'musl' if RUBY_PLATFORM =~ /musl/
-        ideal = parts.compact.reject { |s| s.to_s.empty? }.join('-').gsub(/-darwin-?\d+/, '-darwin')
+      @platform ||= determine_platform
+    end
 
-        return ideal if File.directory?(File.join(vendored_source_path, ideal))
+    def determine_platform
+      ideal = construct_ideal_platform_name
+      return ideal if platform_directory_exists?(ideal)
 
-        available = Dir.glob(File.join(vendored_source_path, '*')).select { |d| File.directory?(d) }.map { |d| File.basename(d) } - ['include']
-        available.size == 1 ? available.first : ideal
-      end
+      fallback_platform
+    end
+
+    def construct_ideal_platform_name
+      local = Gem::Platform.local
+      parts = [local.cpu, local.os, local.version]
+      parts[2] = 'musl' if musl_platform?
+      parts.compact.reject(&:empty?).join('-').gsub(/-darwin-?\d+/, '-darwin')
+    end
+
+    def musl_platform?
+      RUBY_PLATFORM =~ /musl/
+    end
+
+    def platform_directory_exists?(name)
+      File.directory?(File.join(vendored_source_path, name))
+    end
+
+    def fallback_platform
+      available = available_platform_directories
+      available.size == 1 ? available.first : construct_ideal_platform_name
+    end
+
+    def available_platform_directories
+      Dir.glob(File.join(vendored_source_path, '*')).select { |d| File.directory?(d) }.map { |d| File.basename(d) } - ['include']
     end
 
     def config
