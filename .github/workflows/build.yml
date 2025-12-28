@@ -72,82 +72,6 @@ jobs:
         with:
           name: gem-${{ steps.set-metadata.outputs.GEM_VERSION  }}-ruby
           path: pkg
-  build-darwin:
-    strategy:
-      fail-fast: false
-      matrix:
-        platform:
-          - arm64
-          - x86_64
-        include:
-          - platform: arm64
-            runner: macos-15-xlarge
-          - platform: x86_64
-            runner: macos-15-large
-    name: Build (darwin) (${{ matrix.platform }})
-    outputs:
-      GEM_VERSION: ${{ steps.set-metadata.outputs.GEM_VERSION }}
-    runs-on: ${{ matrix.runner }}
-    env:
-      TARGET_PLATFORM: ${{ matrix.platform }}-darwin
-      RUBY_TARGET_PLATFORM: ${{ matrix.platform }}-darwin
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Bundle
-        run: bundle install
-      - name: Set metadata
-        id: set-metadata
-        run: |
-            ./libexec/metadata ruby_platform | tee ruby_platform
-            echo "RUBY_PLATFORM=$RUBY_TARGET_PLATFORM" >> $GITHUB_OUTPUT
-            ./libexec/metadata gem_platform | tee gem_platform
-            echo "GEM_PLATFORM=$TARGET_PLATFORM" >> $GITHUB_OUTPUT
-            ./libexec/metadata gem_version | tee gem_version
-            echo "GEM_VERSION=$(cat gem_version)" >> $GITHUB_OUTPUT
-            ./libexec/metadata node_version | tee node_version
-            echo "NODE_VERSION=$(cat node_version)" >> $GITHUB_OUTPUT
-            ./libexec/metadata libv8_version | tee libv8_version
-            echo "LIBV8_VERSION=$(cat libv8_version)" >> $GITHUB_OUTPUT
-      - name: Download Node.js
-        run: |
-            ./libexec/download-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
-      - name: Extract Node.js
-        run: |
-            ./libexec/extract-node ${{ steps.set-metadata.outputs.NODE_VERSION }}
-      - name: Validate V8 version
-        run: |
-            ./libexec/metadata libv8_version_h | tee libv8_version_h
-            diff libv8_version_h libv8_version
-      - name: Build V8
-        run: |
-            ./libexec/build-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
-      - name: Build Monolith
-        run: |
-            ./libexec/build-monolith ${{ steps.set-metadata.outputs.NODE_VERSION }}
-      - name: Inject V8
-        run: |
-            ./libexec/inject-libv8 ${{ steps.set-metadata.outputs.NODE_VERSION }}
-      - name: Test V8 in C++
-        run: |
-            cd test/gtest
-            cmake -S . -B build -DCMAKE_OSX_ARCHITECTURES=${{ matrix.platform }}
-            cd build
-            cmake --build .
-            ./c_v8_tests
-      - name: Build binary gem
-        run: |
-            bundle exec rake binary
-      - name: Upload V8
-        uses: actions/upload-artifact@v4
-        with:
-          name: v8-${{ steps.set-metadata.outputs.LIBV8_VERSION  }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
-          path: vendor
-      - name: Upload gem
-        uses: actions/upload-artifact@v4
-        with:
-          name: gem-${{ steps.set-metadata.outputs.GEM_VERSION  }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
-          path: pkg
   build-linux:
     strategy:
       fail-fast: false
@@ -310,12 +234,6 @@ jobs:
           - amd64
           - arm64
         container:
-          - image: ruby:3.2
-            version: '3.2'
-            libc: gnu
-          - image: ruby:3.2-alpine
-            version: '3.2'
-            libc: musl
           - image: ruby:3.3
             version: '3.3'
             libc: gnu
@@ -330,6 +248,12 @@ jobs:
             libc: gnu
           - image: ruby:3.4-alpine
             version: '3.4'
+            libc: musl
+          - image: ruby:4.0
+            version: '4.0'
+            libc: gnu
+          - image: ruby:4.0-alpine
+            version: '4.0'
             libc: musl
         include:
           - platform: amd64
@@ -376,51 +300,14 @@ jobs:
           docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle install
           docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle exec rake compile
           docker exec -w "${PWD}" ${{ steps.container.outputs.id }} bundle exec rake test
-  test-darwin:
-    strategy:
-      fail-fast: false
-      matrix:
-        platform:
-          - arm64
-          - x86_64
-        include:
-          - platform: arm64
-            runner: macos-15-xlarge
-          - platform: x86_64
-            runner: macos-15-large
-    name: Test (darwin) (${{ matrix.platform }})
-    needs: build-darwin
-    runs-on: ${{ matrix.runner }}
-    steps:
-      - name: Set metadata
-        id: set-metadata
-        run: |
-            echo "${{ matrix.platform }}-darwin" | tee gem_platform
-            echo "GEM_PLATFORM=$(cat gem_platform)" >> $GITHUB_OUTPUT
-      - name: Download a single artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: gem-${{ needs.build-darwin.outputs.GEM_VERSION }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}
-          path: pkg
-      - name: Install gem
-        run: gem install pkg/libv8-node-${{ needs.build-darwin.outputs.GEM_VERSION }}-${{ steps.set-metadata.outputs.GEM_PLATFORM }}.gem
-      - name: Test with mini_racer
-        run: |
-          git clone https://github.com/rubyjs/mini_racer.git test/mini_racer --depth 1
-          cd test/mini_racer
-          ruby -i -ne '$_ =~ /^\s+LIBV8_NODE_VERSION/ ? print("  LIBV8_NODE_VERSION = \"${{ needs.build-darwin.outputs.GEM_VERSION }}\"\n") : print' lib/mini_racer/version.rb
-          ruby -i -ne '$_ =~ /spec.required_ruby_version/ ? "" : print' mini_racer.gemspec
-          bundle install
-          bundle exec rake compile
-          bundle exec rake test
   test-linux:
     strategy:
       fail-fast: false
       matrix:
         version:
-          - '3.2'
           - '3.3'
           - '3.4'
+          - '4.0'
         platform:
           - amd64
           - arm64
@@ -432,16 +319,16 @@ jobs:
             runner: ubuntu-24.04
           - platform: arm64
             runner: ubuntu-24.04-arm
-          - version: '3.2'
-            platform: 'arm64'
-            libc: 'gnu'
           - version: '3.3'
             platform: 'arm64'
             libc: 'gnu'
           - version: '3.4'
             platform: 'arm64'
             libc: 'gnu'
-          - version: '3.4'
+          - version: '4.0'
+            platform: 'arm64'
+            libc: 'gnu'
+          - version: '4.0'
             platform: 'arm64'
             libc: 'musl'
     name: Test (linux) (${{ matrix.platform }}, ${{ matrix.libc }}, ruby ${{ matrix.version }})
